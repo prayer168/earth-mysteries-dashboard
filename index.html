@@ -3,1163 +3,823 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>大地的奧秘 — 互動視覺學習儀表板</title>
+<title>種菜好好玩 🌱 互動視覺學習儀表板</title>
 <style>
   :root {
-    --sky: #87CEEB;
-    --soil: #8B5E3C;
-    --rock: #6B7280;
-    --magma: #FF4500;
-    --mantle: #B8521A;
-    --core-outer: #FF8C00;
-    --core-inner: #FFD700;
-    --grass: #4CAF50;
-    --accent: #E67E22;
-    --text-dark: #1a1a2e;
-    --text-light: #f8f9fa;
-    --card-bg: rgba(255,255,255,0.92);
+    --green-dark: #2d6a4f;
+    --green-mid: #52b788;
+    --green-light: #b7e4c7;
+    --green-pale: #d8f3dc;
+    --soil: #8b5e3c;
+    --sky: #caf0f8;
+    --sun: #ffd60a;
+    --water: #48cae4;
+    --accent: #f77f00;
+    --red: #e63946;
+    --white: #ffffff;
+    --shadow: rgba(0,0,0,0.15);
   }
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
   body {
-    font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
-    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+    font-family: 'Segoe UI', '微軟正黑體', sans-serif;
+    background: linear-gradient(180deg, #caf0f8 0%, #d8f3dc 50%, #b7e4c7 100%);
     min-height: 100vh;
-    color: var(--text-dark);
     overflow-x: hidden;
   }
 
-  /* ===== STARS BACKGROUND ===== */
-  .stars {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    pointer-events: none; z-index: 0;
-    background: transparent;
+  /* HERO */
+  .hero {
+    position: relative;
+    background: linear-gradient(135deg, #90e0ef 0%, #caf0f8 40%, #d8f3dc 70%, #95d5b2 100%);
+    padding: 40px 20px 80px;
+    text-align: center;
+    overflow: hidden;
   }
-  .stars::before, .stars::after {
+  .hero::before {
     content: '';
     position: absolute;
-    width: 2px; height: 2px;
-    background: white;
+    bottom: 0; left: 0; right: 0;
+    height: 60px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 60'%3E%3Cpath fill='%23b7e4c7' d='M0,30 C360,60 720,0 1080,30 C1260,45 1380,20 1440,30 L1440,60 L0,60 Z'/%3E%3C/svg%3E") no-repeat bottom;
+    background-size: cover;
+  }
+  .sun-anim {
+    position: absolute; top: 20px; right: 60px;
+    width: 80px; height: 80px;
+    background: radial-gradient(circle, #ffd60a 60%, transparent 70%);
     border-radius: 50%;
-    box-shadow:
-      120px 80px #fff, 250px 150px #fff, 400px 60px #fff,
-      550px 200px #fff, 700px 100px #fff, 850px 180px #fff,
-      1000px 50px #fff, 150px 300px #ffe, 300px 400px #fff,
-      500px 350px #fff, 650px 280px #ffe, 800px 320px #fff,
-      950px 400px #fff, 80px 500px #fff, 230px 550px #ffe,
-      380px 480px #fff, 530px 520px #fff, 680px 460px #fff,
-      820px 500px #ffe, 970px 530px #fff, 1100px 200px #fff,
-      1200px 350px #ffe, 1300px 100px #fff, 1400px 450px #fff;
-    animation: twinkle 4s infinite alternate;
+    animation: sunPulse 3s ease-in-out infinite;
+    box-shadow: 0 0 30px #ffd60a88;
   }
-  .stars::after {
-    width: 1px; height: 1px;
-    box-shadow:
-      60px 120px #adf, 190px 230px #ddf, 320px 170px #adf,
-      470px 290px #ddf, 610px 140px #adf, 760px 260px #ddf,
-      900px 190px #adf, 1050px 310px #ddf, 1150px 80px #adf,
-      1250px 240px #ddf, 1350px 380px #adf;
-    animation-delay: 2s;
+  @keyframes sunPulse {
+    0%,100% { transform: scale(1); box-shadow: 0 0 30px #ffd60a88; }
+    50% { transform: scale(1.1); box-shadow: 0 0 50px #ffd60aaa; }
   }
-  @keyframes twinkle { from{opacity:.4} to{opacity:1} }
-
-  /* ===== HERO HEADER ===== */
-  .hero {
-    position: relative; z-index: 1;
-    text-align: center;
-    padding: 60px 20px 40px;
-    background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, transparent 100%);
+  .cloud {
+    position: absolute; background: white; border-radius: 50px;
+    opacity: 0.8; animation: floatCloud 12s linear infinite;
   }
-  .hero-icon { font-size: 80px; animation: float 3s ease-in-out infinite; display: block; margin-bottom: 16px; }
-  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+  .cloud::before,.cloud::after { content:''; position:absolute; background:white; border-radius:50%; }
+  .cloud1 { width:100px; height:30px; top:30px; left:-120px; animation-duration:14s; }
+  .cloud1::before { width:50px; height:50px; top:-25px; left:10px; }
+  .cloud1::after { width:35px; height:35px; top:-18px; left:45px; }
+  .cloud2 { width:70px; height:22px; top:70px; left:-90px; animation-duration:18s; animation-delay:-6s; opacity:0.6; }
+  .cloud2::before { width:35px; height:35px; top:-18px; left:8px; }
+  .cloud2::after { width:25px; height:25px; top:-12px; left:33px; }
+  @keyframes floatCloud {
+    from { transform: translateX(0); }
+    to { transform: translateX(calc(100vw + 200px)); }
+  }
   .hero h1 {
-    font-size: clamp(2rem, 5vw, 3.5rem);
-    font-weight: 900;
-    color: #fff;
-    text-shadow: 0 0 30px rgba(255,200,100,0.8), 0 4px 20px rgba(0,0,0,0.5);
-    letter-spacing: 4px;
-    margin-bottom: 12px;
-  }
-  .hero p {
-    font-size: 1.15rem;
-    color: rgba(255,255,255,0.75);
-    letter-spacing: 1px;
-  }
-
-  /* ===== NAV TABS ===== */
-  .nav-tabs {
-    position: sticky; top: 0; z-index: 100;
-    display: flex; justify-content: center; gap: 8px;
-    padding: 16px 20px;
-    background: rgba(10,8,30,0.85);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-    flex-wrap: wrap;
-  }
-  .tab-btn {
-    padding: 10px 24px;
-    border: 2px solid rgba(255,255,255,0.25);
-    border-radius: 30px;
-    background: transparent;
-    color: rgba(255,255,255,0.75);
-    font-size: 1rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.3s;
-    font-family: inherit;
-  }
-  .tab-btn:hover { border-color: var(--accent); color: var(--accent); }
-  .tab-btn.active {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #fff;
-    box-shadow: 0 0 20px rgba(230,126,34,0.5);
-  }
-
-  /* ===== SECTIONS ===== */
-  .section {
-    display: none;
-    position: relative; z-index: 1;
-    padding: 40px 20px 60px;
-    max-width: 1100px;
-    margin: 0 auto;
-  }
-  .section.active { display: block; animation: fadeIn 0.5s ease; }
-  @keyframes fadeIn { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
-
-  .section-title {
-    text-align: center;
-    font-size: clamp(1.6rem, 4vw, 2.4rem);
-    font-weight: 900;
-    color: #fff;
+    font-size: clamp(2rem, 6vw, 3.5rem);
+    color: var(--green-dark);
+    text-shadow: 3px 3px 0 #fff, -1px -1px 0 #fff;
     margin-bottom: 10px;
-    text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-  }
-  .section-subtitle {
-    text-align: center;
-    color: rgba(255,255,255,0.6);
-    font-size: 1.05rem;
-    margin-bottom: 40px;
-  }
-
-  /* ===== CARDS ===== */
-  .card {
-    background: var(--card-bg);
-    border-radius: 20px;
-    padding: 28px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-    margin-bottom: 24px;
-    transition: transform 0.3s, box-shadow 0.3s;
-  }
-  .card:hover { transform: translateY(-4px); box-shadow: 0 16px 48px rgba(0,0,0,0.4); }
-  .card-title {
-    font-size: 1.3rem; font-weight: 800;
-    margin-bottom: 14px; display: flex; align-items: center; gap: 10px;
-  }
-
-  /* ===== SECTION 1: 地層剖面圖 ===== */
-  .earth-cross {
-    border-radius: 20px; overflow: hidden;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-    margin-bottom: 30px;
-    position: relative;
-    cursor: pointer;
-  }
-  .layer {
-    width: 100%; display: flex; align-items: center;
-    padding: 18px 28px; gap: 16px;
-    position: relative; overflow: hidden;
-    transition: filter 0.3s, transform 0.2s;
-  }
-  .layer:hover { filter: brightness(1.15); transform: scaleX(1.01); }
-  .layer-icon { font-size: 2rem; flex-shrink: 0; }
-  .layer-info h3 { font-size: 1.1rem; font-weight: 800; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.5); }
-  .layer-info p { font-size: 0.88rem; color: rgba(255,255,255,0.9); margin-top: 4px; }
-  .layer-badge {
-    margin-left: auto; flex-shrink: 0;
-    background: rgba(255,255,255,0.25);
-    border-radius: 20px; padding: 4px 14px;
-    font-size: 0.8rem; color: #fff; font-weight: 700;
-    backdrop-filter: blur(4px);
-    white-space: nowrap;
-  }
-
-  .layer-surface  { background: linear-gradient(135deg, #4a7c59, #5a9966); }
-  .layer-soil     { background: linear-gradient(135deg, #7a4a2a, #9b6040); }
-  .layer-rock     { background: linear-gradient(135deg, #555b6e, #727b8e); }
-  .layer-crust    { background: linear-gradient(135deg, #7a6652, #9e8870); }
-  .layer-mantle   { background: linear-gradient(135deg, #b8521a, #d46820); }
-  .layer-outer    { background: linear-gradient(135deg, #e06010, #f08020); }
-  .layer-inner    { background: linear-gradient(135deg, #e8a000, #ffd000); }
-
-  /* ===== DETAIL MODAL ===== */
-  .detail-panel {
-    display: none;
-    position: fixed; inset: 0; z-index: 999;
-    background: rgba(0,0,0,0.7);
-    backdrop-filter: blur(6px);
-    align-items: center; justify-content: center;
-    padding: 20px;
-  }
-  .detail-panel.show { display: flex; animation: fadeIn 0.3s; }
-  .detail-box {
-    background: #fff; border-radius: 24px;
-    padding: 36px; max-width: 520px; width: 100%;
-    position: relative;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-  }
-  .detail-box h2 { font-size: 1.5rem; font-weight: 900; margin-bottom: 16px; }
-  .detail-box p { font-size: 1rem; line-height: 1.8; color: #444; }
-  .detail-box ul { margin: 12px 0 0 20px; }
-  .detail-box ul li { margin-bottom: 8px; color: #444; font-size: 0.95rem; line-height: 1.6; }
-  .close-btn {
-    position: absolute; top: 16px; right: 20px;
-    font-size: 1.6rem; cursor: pointer; color: #999;
-    background: none; border: none; line-height: 1;
-    transition: color 0.2s;
-  }
-  .close-btn:hover { color: #333; }
-
-  /* Fossil items */
-  .fossil-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 16px; margin-top: 16px;
-  }
-  .fossil-card {
-    background: linear-gradient(135deg, #fff9f0, #fff3e0);
-    border: 2px solid #f0c080;
-    border-radius: 16px; padding: 20px;
-    text-align: center; cursor: pointer;
-    transition: all 0.3s;
-  }
-  .fossil-card:hover { transform: scale(1.05); border-color: var(--accent); box-shadow: 0 8px 24px rgba(230,126,34,0.2); }
-  .fossil-card .fi { font-size: 2.8rem; display: block; margin-bottom: 8px; }
-  .fossil-card h4 { font-size: 1rem; font-weight: 800; color: #7a4a1a; }
-  .fossil-card p { font-size: 0.82rem; color: #a07040; margin-top: 4px; }
-
-  /* ===== SECTION 2: 大地如何變動 ===== */
-  .motion-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
-  }
-  .motion-card {
-    border-radius: 20px; padding: 28px;
-    color: #fff; position: relative; overflow: hidden;
-    cursor: pointer; transition: transform 0.3s, box-shadow 0.3s;
-  }
-  .motion-card:hover { transform: translateY(-6px); box-shadow: 0 20px 48px rgba(0,0,0,0.4); }
-  .motion-card h3 { font-size: 1.25rem; font-weight: 900; margin-bottom: 10px; }
-  .motion-card p { font-size: 0.92rem; line-height: 1.7; opacity: 0.92; }
-  .motion-card .mc-icon { font-size: 3.5rem; margin-bottom: 14px; display: block; }
-  .mc-plates  { background: linear-gradient(135deg, #1a1a2e, #16213e); }
-  .mc-volcano { background: linear-gradient(135deg, #8B0000, #cc2200); }
-  .mc-quake   { background: linear-gradient(135deg, #1a3a1a, #2d6e2d); }
-  .mc-fold    { background: linear-gradient(135deg, #3a2a0a, #7a5a1a); }
-
-  /* Plate animation */
-  .plate-anim {
-    width: 100%; height: 80px; position: relative;
-    overflow: hidden; border-radius: 12px;
-    background: #0a0a2a; margin: 12px 0;
-  }
-  .plate-left, .plate-right {
-    position: absolute; top: 20px; height: 40px;
-    background: #4a8a5a; border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    color: #fff; font-weight: 700; font-size: 0.8rem;
-    padding: 0 14px;
-  }
-  .plate-left  { left: 0;   animation: plateL 3s ease-in-out infinite alternate; }
-  .plate-right { right: 0;  animation: plateR 3s ease-in-out infinite alternate; }
-  @keyframes plateL { from{left:0} to{left:28%} }
-  @keyframes plateR { from{right:0} to{right:28%} }
-  .plate-crack {
-    position: absolute; top: 0; left: 50%; transform: translateX(-50%);
-    width: 4px; height: 100%;
-    background: linear-gradient(180deg, transparent, #ff4500, transparent);
-    animation: crack 3s ease-in-out infinite alternate;
-  }
-  @keyframes crack { from{opacity:0.3} to{opacity:1} }
-
-  /* Volcano animation */
-  .volcano-anim {
-    width: 100%; height: 100px; position: relative;
-    overflow: hidden; border-radius: 12px;
-    background: #1a0a00; margin: 12px 0;
-  }
-  .volcano-mountain {
-    position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
-    width: 0; height: 0;
-    border-left: 60px solid transparent;
-    border-right: 60px solid transparent;
-    border-bottom: 70px solid #4a2a1a;
-  }
-  .lava-particle {
-    position: absolute;
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: radial-gradient(circle, #ff8c00, #ff4500);
-    bottom: 30px; left: 50%;
-    animation: lavaPop 1.5s ease-out infinite;
-  }
-  .lava-particle:nth-child(2) { animation-delay: 0.4s; }
-  .lava-particle:nth-child(3) { animation-delay: 0.8s; }
-  .lava-particle:nth-child(4) { animation-delay: 1.1s; }
-  @keyframes lavaPop {
-    0%   { transform: translate(-50%, 0) scale(1); opacity: 1; }
-    100% { transform: translate(calc(-50% + var(--dx, 20px)), -80px) scale(0.2); opacity: 0; }
-  }
-  .lava-particle:nth-child(1) { --dx: 10px; }
-  .lava-particle:nth-child(2) { --dx: -25px; }
-  .lava-particle:nth-child(3) { --dx: 30px; }
-  .lava-particle:nth-child(4) { --dx: -10px; }
-
-  /* Earthquake animation */
-  .quake-anim {
-    width: 100%; height: 80px; position: relative;
-    overflow: hidden; border-radius: 12px;
-    background: #0a1a0a; margin: 12px 0;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .quake-line {
-    width: 90%; height: 3px;
-    background: #4CAF50;
-    position: relative;
-    clip-path: polygon(0 50%, 10% 50%, 15% 0%, 20% 100%, 25% 50%, 35% 50%, 38% 20%, 42% 80%, 46% 50%, 60% 50%, 62% 30%, 65% 70%, 68% 50%, 80% 50%, 83% 10%, 87% 90%, 90% 50%, 100% 50%);
-    animation: quakeShake 0.8s linear infinite;
-  }
-  @keyframes quakeShake {
-    0%,100% { opacity: 0.6; }
-    50%      { opacity: 1; filter: brightness(1.5); }
-  }
-
-  /* Folding animation */
-  .fold-anim {
-    width: 100%; height: 80px; position: relative;
-    overflow: hidden; border-radius: 12px;
-    background: #1a1000; margin: 12px 0;
-    display: flex; align-items: flex-end;
-  }
-  .fold-layer {
-    position: absolute; width: 100%; height: 14px;
-    border-radius: 4px;
-  }
-  .fold-layer:nth-child(1) { background:#c0a060; bottom:60px; animation: fold1 4s ease-in-out infinite alternate; }
-  .fold-layer:nth-child(2) { background:#a08040; bottom:44px; animation: fold2 4s ease-in-out infinite alternate; }
-  .fold-layer:nth-child(3) { background:#806020; bottom:28px; animation: fold3 4s ease-in-out infinite alternate; }
-  .fold-layer:nth-child(4) { background:#604010; bottom:12px; animation: fold4 4s ease-in-out infinite alternate; }
-  @keyframes fold1 { from{clip-path:polygon(0 50%,50% 50%,100% 50%)} to{clip-path:polygon(0 80%,25% 10%,50% 80%,75% 10%,100% 80%)} }
-  @keyframes fold2 { from{clip-path:polygon(0 50%,50% 50%,100% 50%)} to{clip-path:polygon(0 20%,25% 90%,50% 20%,75% 90%,100% 20%)} }
-  @keyframes fold3 { from{clip-path:polygon(0 50%,50% 50%,100% 50%)} to{clip-path:polygon(0 80%,25% 10%,50% 80%,75% 10%,100% 80%)} }
-  @keyframes fold4 { from{clip-path:polygon(0 50%,50% 50%,100% 50%)} to{clip-path:polygon(0 20%,25% 90%,50% 20%,75% 90%,100% 20%)} }
-
-  /* ===== SECTION 3: 大地變動影響 ===== */
-  .effect-tabs {
-    display: flex; gap: 8px; flex-wrap: wrap;
-    justify-content: center; margin-bottom: 28px;
-  }
-  .effect-tab-btn {
-    padding: 8px 20px; border-radius: 20px;
-    border: 2px solid rgba(255,255,255,0.3);
-    background: transparent; color: rgba(255,255,255,0.7);
-    font-size: 0.95rem; font-weight: 700; cursor: pointer;
-    transition: all 0.3s; font-family: inherit;
-  }
-  .effect-tab-btn.active, .effect-tab-btn:hover {
-    background: #e74c3c; border-color: #e74c3c; color: #fff;
-    box-shadow: 0 0 16px rgba(231,76,60,0.4);
-  }
-  .effect-content { display: none; }
-  .effect-content.active { display: block; animation: fadeIn 0.4s; }
-
-  .effect-hero {
-    border-radius: 20px; padding: 36px;
-    color: #fff; text-align: center; margin-bottom: 24px;
-    position: relative; overflow: hidden;
-  }
-  .effect-hero h2 { font-size: 2rem; font-weight: 900; margin-bottom: 10px; }
-  .effect-hero p { font-size: 1.05rem; opacity: 0.9; max-width: 500px; margin: 0 auto; line-height: 1.7; }
-  .effect-hero .eh-icon { font-size: 5rem; display: block; margin-bottom: 16px; animation: float 3s infinite; }
-
-  .bg-quake    { background: linear-gradient(135deg, #1a1a1a, #3a3a3a); }
-  .bg-volcano  { background: linear-gradient(135deg, #6b0000, #c0392b); }
-  .bg-mountain { background: linear-gradient(135deg, #1a3a1a, #276221); }
-  .bg-tsunami  { background: linear-gradient(135deg, #001a3a, #006494); }
-
-  .info-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 16px;
-  }
-  .info-item {
-    background: var(--card-bg); border-radius: 16px;
-    padding: 20px; text-align: center;
-    transition: transform 0.3s;
-  }
-  .info-item:hover { transform: translateY(-4px); }
-  .info-item .ii-icon { font-size: 2.4rem; display: block; margin-bottom: 10px; }
-  .info-item h4 { font-size: 1rem; font-weight: 800; color: #333; margin-bottom: 6px; }
-  .info-item p  { font-size: 0.85rem; color: #666; line-height: 1.6; }
-
-  /* Timeline */
-  .timeline {
-    position: relative; padding-left: 32px;
-  }
-  .timeline::before {
-    content: ''; position: absolute; left: 12px; top: 0; bottom: 0;
-    width: 3px; background: linear-gradient(180deg, #e74c3c, #3498db);
-    border-radius: 2px;
-  }
-  .tl-item {
-    position: relative; margin-bottom: 24px;
-    background: var(--card-bg); border-radius: 16px;
-    padding: 20px 20px 20px 24px;
-  }
-  .tl-item::before {
-    content: ''; position: absolute; left: -26px; top: 22px;
-    width: 14px; height: 14px; border-radius: 50%;
-    background: var(--accent); border: 3px solid #fff;
-    box-shadow: 0 0 8px rgba(230,126,34,0.5);
-  }
-  .tl-item h4 { font-weight: 800; color: #333; margin-bottom: 6px; }
-  .tl-item p  { font-size: 0.9rem; color: #555; line-height: 1.6; }
-
-  /* ===== QUIZ CARD ===== */
-  .quiz-wrap {
-    background: linear-gradient(135deg, #1a0a3a, #2d1a5a);
-    border-radius: 20px; padding: 32px;
-    color: #fff; margin-top: 20px;
-  }
-  .quiz-wrap h3 { font-size: 1.3rem; font-weight: 900; margin-bottom: 20px; }
-  .quiz-q {
-    background: rgba(255,255,255,0.1); border-radius: 14px;
-    padding: 20px; margin-bottom: 16px;
-  }
-  .quiz-q p { font-size: 1rem; margin-bottom: 14px; line-height: 1.6; }
-  .quiz-opts { display: flex; flex-wrap: wrap; gap: 8px; }
-  .quiz-opt {
-    padding: 8px 18px; border-radius: 20px;
-    border: 2px solid rgba(255,255,255,0.3);
-    background: transparent; color: #fff;
-    cursor: pointer; font-size: 0.9rem; font-weight: 600;
-    transition: all 0.3s; font-family: inherit;
-  }
-  .quiz-opt:hover { border-color: #fff; background: rgba(255,255,255,0.15); }
-  .quiz-opt.correct { background: #27ae60; border-color: #27ae60; }
-  .quiz-opt.wrong   { background: #e74c3c; border-color: #e74c3c; }
-  .quiz-feedback { margin-top: 10px; font-size: 0.88rem; min-height: 22px; }
-
-  /* ===== FACT TICKER ===== */
-  .fact-ticker {
-    background: rgba(255,165,0,0.15);
-    border: 1px solid rgba(255,165,0,0.3);
-    border-radius: 12px; padding: 14px 20px;
-    margin: 20px 0;
-    color: rgba(255,255,255,0.9);
-    font-size: 0.95rem;
-    display: flex; align-items: center; gap: 12px;
-  }
-  .fact-ticker span:first-child { font-size: 1.4rem; flex-shrink: 0; }
-
-  /* ===== PROGRESS BAR ===== */
-  .stat-bar-wrap { margin-top: 8px; }
-  .stat-label { display: flex; justify-content: space-between; font-size: 0.82rem; color: #666; margin-bottom: 4px; }
-  .stat-bar { height: 10px; background: #e0e0e0; border-radius: 8px; overflow: hidden; }
-  .stat-fill { height: 100%; border-radius: 8px; transition: width 1.5s cubic-bezier(.4,0,.2,1); }
-
-  /* ===== FOOTER ===== */
-  footer {
     position: relative; z-index: 1;
-    text-align: center; padding: 32px 20px;
-    color: rgba(255,255,255,0.4);
-    font-size: 0.88rem;
-    border-top: 1px solid rgba(255,255,255,0.08);
   }
+  .hero p { font-size: clamp(1rem, 3vw, 1.3rem); color: var(--green-dark); opacity: 0.85; position: relative; z-index: 1; }
+  .hero-plants {
+    display: flex; justify-content: center; gap: 20px;
+    margin-top: 30px; position: relative; z-index: 1;
+  }
+  .hero-plant {
+    font-size: 3rem;
+    animation: heroPlantBounce 2s ease-in-out infinite;
+    cursor: pointer; transition: transform 0.2s;
+  }
+  .hero-plant:nth-child(2) { animation-delay: 0.3s; }
+  .hero-plant:nth-child(3) { animation-delay: 0.6s; }
+  .hero-plant:nth-child(4) { animation-delay: 0.9s; }
+  .hero-plant:nth-child(5) { animation-delay: 1.2s; }
+  @keyframes heroPlantBounce {
+    0%,100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-10px) rotate(5deg); }
+  }
+  .hero-plant:hover { transform: scale(1.3) rotate(-10deg); }
 
-  /* ===== RESPONSIVE ===== */
-  @media(max-width:600px) {
-    .hero h1 { font-size: 1.8rem; }
-    .motion-grid { grid-template-columns: 1fr; }
-    .fossil-grid { grid-template-columns: repeat(2, 1fr); }
-    .info-grid   { grid-template-columns: repeat(2, 1fr); }
+  /* NAV */
+  .nav {
+    display: flex; justify-content: center; gap: 15px;
+    padding: 20px; flex-wrap: wrap;
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(255,255,255,0.92); backdrop-filter: blur(10px);
+    box-shadow: 0 2px 10px var(--shadow);
   }
+  .nav-btn {
+    padding: 10px 24px; border: none; border-radius: 30px;
+    font-size: 1.05rem; font-weight: bold; cursor: pointer;
+    transition: all 0.3s; color: white;
+  }
+  .nav-btn:nth-child(1) { background: linear-gradient(135deg, #2d6a4f, #52b788); }
+  .nav-btn:nth-child(2) { background: linear-gradient(135deg, #1d8fa8, #48cae4); }
+  .nav-btn:nth-child(3) { background: linear-gradient(135deg, #d4722a, #f77f00); }
+  .nav-btn:hover { transform: translateY(-3px); box-shadow: 0 6px 20px var(--shadow); }
+
+  /* SECTIONS */
+  .section { padding: 50px 20px; max-width: 1100px; margin: 0 auto; }
+  .section-title { text-align: center; margin-bottom: 40px; }
+  .section-title h2 {
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    display: inline-block;
+    background: linear-gradient(135deg, #52b788, #2d6a4f);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .section-title h2.blue { background: linear-gradient(135deg, #1d8fa8, #023e8a); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .section-title h2.orange { background: linear-gradient(135deg, #f77f00, #d62828); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .section-title .underline { display:block; width:80px; height:4px; background:var(--green-mid); margin:8px auto 0; border-radius:2px; }
+
+  /* VEGGIE GRID */
+  .veggie-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 20px; margin-top: 20px;
+  }
+  .veggie-card {
+    background: white; border-radius: 20px; padding: 20px 15px;
+    text-align: center; cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 4px 15px var(--shadow);
+    position: relative; overflow: hidden; border: 3px solid transparent;
+  }
+  .veggie-card::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, var(--green-pale), white);
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .veggie-card:hover {
+    transform: translateY(-8px) scale(1.05);
+    box-shadow: 0 12px 30px rgba(82,183,136,0.4); border-color: var(--green-mid);
+  }
+  .veggie-card:hover::before { opacity: 1; }
+  .veggie-card.selected { border-color: var(--green-mid); background: var(--green-pale); transform: scale(1.05); }
+  .veggie-icon { font-size: 3.5rem; margin-bottom: 8px; position: relative; z-index: 1; }
+  .veggie-name { font-size: 1.1rem; font-weight: bold; color: var(--green-dark); position: relative; z-index: 1; }
+  .veggie-tag { display:inline-block; font-size:0.75rem; padding:2px 10px; border-radius:20px; margin-top:5px; position:relative; z-index:1; }
+  .tag-leaf { background:#d8f3dc; color:#1b4332; }
+  .tag-root { background:#fde8d8; color:#7c3d12; }
+  .tag-fruit { background:#fef9c3; color:#7c5e0a; }
+
+  .veggie-info-panel {
+    background: white; border-radius: 20px; padding: 25px;
+    box-shadow: 0 4px 20px var(--shadow); min-height: 120px;
+    display: none; animation: slideDown 0.4s ease; margin-top: 20px;
+  }
+  .veggie-info-panel.show { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+  @keyframes slideDown { from { opacity:0; transform:translateY(-20px); } to { opacity:1; transform:translateY(0); } }
+  .info-icon { font-size: 4rem; }
+  .info-content h3 { color: var(--green-dark); font-size: 1.4rem; margin-bottom: 8px; }
+  .info-content p { color: #555; line-height: 1.7; font-size: 1rem; }
+  .info-tags { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+  .info-badge { padding:4px 12px; border-radius:20px; font-size:0.85rem; font-weight:bold; }
+  .badge-sun { background:#fef9c3; color:#854d0e; }
+  .badge-water { background:#e0f2fe; color:#075985; }
+  .badge-time { background:#f3e8ff; color:#6b21a8; }
+
+  /* CARE SECTION */
+  .care-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:25px; }
+  .care-card {
+    background: white; border-radius: 24px; padding: 30px 25px;
+    text-align: center; box-shadow: 0 4px 20px var(--shadow);
+    position: relative; overflow: hidden; transition: transform 0.3s;
+  }
+  .care-card:hover { transform: translateY(-5px); }
+  .care-card h3 { font-size: 1.3rem; color: var(--green-dark); margin: 15px 0 10px; }
+  .care-card p { color: #666; line-height: 1.7; font-size: 0.95rem; }
+  .care-icon-wrap {
+    width:80px; height:80px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:2.5rem; margin:0 auto 10px;
+  }
+  .care-water .care-icon-wrap { background:#e0f2fe; }
+  .care-sun .care-icon-wrap { background:#fef9c3; }
+  .care-soil .care-icon-wrap { background:#fde8d8; }
+  .care-remove .care-icon-wrap { background:#fce7f3; }
+
+  /* Water game */
+  .water-game {
+    margin-top: 20px;
+    background: linear-gradient(180deg, #e0f7fa 0%, #e0f7fa 65%, #6b4226 65%, #5a3621 100%);
+    border-radius: 16px; padding: 20px 15px 15px; min-height: 160px;
+  }
+  .game-plant { font-size:4rem; transition:all 0.8s ease; display:block; text-align:center; margin-bottom:5px; filter:grayscale(60%); }
+  .game-plant.watered { filter:grayscale(0); animation:growUp 0.8s ease; }
+  @keyframes growUp {
+    0% { transform:scale(0.8) translateY(10px); }
+    60% { transform:scale(1.2) translateY(-5px); }
+    100% { transform:scale(1) translateY(0); }
+  }
+  .water-bar-bg { background:#b8e0f7; border-radius:8px; height:14px; overflow:hidden; }
+  .water-bar-fill { height:100%; background:linear-gradient(90deg,#48cae4,#0096c7); border-radius:8px; width:0%; transition:width 0.6s ease; }
+
+  .game-btn {
+    margin-top: 12px; padding: 10px 28px; border: none;
+    border-radius: 30px; font-size: 1rem; font-weight: bold;
+    cursor: pointer; transition: all 0.3s; color: white;
+  }
+  .btn-water { background:linear-gradient(135deg,#48cae4,#0096c7); }
+  .btn-water:hover { transform:scale(1.05); box-shadow:0 4px 15px #48cae488; }
+  .btn-sun { background:linear-gradient(135deg,#ffd60a,#f77f00); }
+  .btn-sun:hover { transform:scale(1.05); box-shadow:0 4px 15px #ffd60a88; }
+  .btn-reset { background:linear-gradient(135deg,#95d5b2,#52b788); font-size:0.85rem; padding:7px 18px; }
+
+  /* Sun meter */
+  .sun-o-meter {
+    width:120px; height:120px; border-radius:50%;
+    background: conic-gradient(#ffd60a 0deg, #e5e7eb 0deg);
+    display:flex; align-items:center; justify-content:center;
+    margin:15px auto; transition:background 0.5s;
+    position:relative; box-shadow:0 0 0 8px #fef9c3;
+  }
+  .sun-o-meter::before { content:'☀️'; font-size:2.5rem; position:absolute; }
+
+  /* Soil */
+  .soil-choices { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:15px; }
+  .soil-btn {
+    padding:10px 18px; border:3px solid transparent; border-radius:16px;
+    cursor:pointer; font-size:0.9rem; font-weight:bold;
+    transition:all 0.3s; background:#f5f5f5; color:#444;
+  }
+  .soil-btn:hover { transform:scale(1.05); }
+  .soil-btn.correct { border-color:var(--green-mid); background:var(--green-pale); color:var(--green-dark); }
+  .soil-btn.wrong { border-color:var(--red); background:#fee2e2; color:var(--red); animation:shake 0.4s ease; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)} }
+  .soil-feedback { margin-top:10px; font-size:0.95rem; min-height:24px; font-weight:bold; }
+
+  /* Weed */
+  .weed-field { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:15px; padding:15px; background:#f0fdf4; border-radius:16px; }
+  .weed-item { font-size:2.2rem; cursor:pointer; transition:all 0.3s; }
+  .weed-item.removed { opacity:0; transform:scale(0) rotate(45deg); pointer-events:none; }
+
+  /* GROWTH TIMELINE */
+  .growth-timeline { position:relative; display:flex; flex-direction:column; }
+  .growth-step {
+    display:flex; align-items:flex-start; gap:25px;
+    padding:25px 0; position:relative; cursor:pointer; transition:all 0.3s;
+  }
+  .growth-step:not(:last-child)::after {
+    content:''; position:absolute; left:40px; top:90px; bottom:-10px;
+    width:4px; background:linear-gradient(180deg,var(--green-mid),var(--green-light)); border-radius:2px;
+  }
+  .step-circle {
+    width:80px; height:80px; border-radius:50%; background:white;
+    border:4px solid var(--green-light);
+    display:flex; align-items:center; justify-content:center;
+    font-size:2.5rem; flex-shrink:0; transition:all 0.4s;
+    box-shadow:0 4px 15px var(--shadow); position:relative; z-index:1;
+  }
+  .growth-step.active .step-circle { border-color:var(--green-mid); box-shadow:0 0 0 6px var(--green-pale),0 4px 20px rgba(82,183,136,0.4); animation:circlePop 0.5s cubic-bezier(0.34,1.56,0.64,1); }
+  @keyframes circlePop { 0%{transform:scale(0.8)} 100%{transform:scale(1)} }
+  .step-content {
+    flex:1; background:white; border-radius:20px; padding:20px 25px;
+    box-shadow:0 4px 15px var(--shadow); border-left:5px solid var(--green-light); transition:all 0.4s;
+  }
+  .growth-step.active .step-content { border-left-color:var(--green-mid); background:var(--green-pale); transform:translateX(5px); }
+  .step-content h3 { color:var(--green-dark); font-size:1.2rem; margin-bottom:8px; }
+  .step-content p { color:#666; line-height:1.7; font-size:0.95rem; }
+  .step-num { display:inline-block; background:var(--green-mid); color:white; font-size:0.8rem; font-weight:bold; padding:2px 10px; border-radius:20px; margin-bottom:6px; }
+
+  /* Progress */
+  .progress-tracker { background:white; border-radius:24px; padding:30px; margin-top:40px; box-shadow:0 4px 20px var(--shadow); }
+  .progress-tracker h3 { color:var(--green-dark); font-size:1.3rem; margin-bottom:20px; text-align:center; }
+  .veggie-progress-item { margin-bottom:18px; }
+  .vp-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
+  .vp-name { font-weight:bold; color:#444; font-size:0.95rem; }
+  .vp-days { font-size:0.85rem; color:#888; }
+  .vp-bar-bg { background:#e5e7eb; border-radius:8px; height:16px; overflow:hidden; }
+  .vp-bar-fill { height:100%; border-radius:8px; transition:width 1.2s cubic-bezier(0.4,0,0.2,1); width:0%; display:flex; align-items:center; justify-content:flex-end; padding-right:6px; }
+  .vp-harvest { background:linear-gradient(90deg,#52b788,#2d6a4f); }
+  .vp-mid { background:linear-gradient(90deg,#74c69d,#52b788); }
+  .vp-early { background:linear-gradient(90deg,#95d5b2,#74c69d); }
+  .vp-bar-fill span { font-size:0.7rem; color:white; font-weight:bold; white-space:nowrap; }
+
+  /* Quiz */
+  .quiz-section { background:linear-gradient(135deg,#f0fdf4,white); border-radius:24px; padding:30px; margin-top:40px; box-shadow:0 4px 20px var(--shadow); }
+  .quiz-section h3 { color:var(--green-dark); font-size:1.3rem; margin-bottom:20px; text-align:center; }
+  .quiz-q { margin-bottom:20px; padding:18px; background:white; border-radius:16px; box-shadow:0 2px 10px var(--shadow); }
+  .quiz-q p { font-size:1rem; color:#333; margin-bottom:12px; font-weight:bold; }
+  .quiz-options { display:flex; gap:10px; flex-wrap:wrap; }
+  .quiz-opt { padding:8px 18px; border:2px solid #e5e7eb; border-radius:20px; background:#f9fafb; cursor:pointer; font-size:0.9rem; color:#444; transition:all 0.3s; }
+  .quiz-opt:hover { border-color:var(--green-mid); background:var(--green-pale); color:var(--green-dark); }
+  .quiz-opt.correct { border-color:var(--green-mid); background:var(--green-pale); color:var(--green-dark); font-weight:bold; }
+  .quiz-opt.wrong { border-color:var(--red); background:#fee2e2; color:var(--red); }
+  .quiz-fb { font-size:0.85rem; margin-top:8px; min-height:20px; font-weight:bold; }
+
+  /* Score board */
+  .score-board {
+    background:linear-gradient(135deg,#2d6a4f,#52b788); border-radius:24px; padding:30px;
+    text-align:center; margin:30px auto; max-width:500px; color:white;
+    box-shadow:0 8px 30px rgba(45,106,79,0.4);
+  }
+  .score-board h3 { font-size:1.5rem; margin-bottom:10px; }
+  .score-num { font-size:4rem; font-weight:bold; line-height:1; }
+  .score-msg { font-size:1.1rem; margin-top:10px; opacity:0.9; }
+  .stars { font-size:2rem; margin:10px 0; }
+
+  /* Confetti */
+  .confetti-piece { position:fixed; width:10px; height:10px; border-radius:2px; animation:confettiFall 1.5s ease forwards; pointer-events:none; z-index:9999; }
+  @keyframes confettiFall { 0%{opacity:1;transform:translateY(0) rotate(0deg)} 100%{opacity:0;transform:translateY(400px) rotate(720deg)} }
+
+  /* Tooltip */
+  .tooltip { position:fixed; background:rgba(45,106,79,0.95); color:white; padding:8px 16px; border-radius:12px; font-size:0.9rem; pointer-events:none; z-index:999; opacity:0; transition:opacity 0.2s; max-width:200px; text-align:center; }
 
   /* Scroll reveal */
-  .reveal { opacity: 0; transform: translateY(30px); transition: all 0.7s ease; }
-  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .reveal { opacity:0; transform:translateY(30px); transition:opacity 0.6s ease,transform 0.6s ease; }
+  .reveal.visible { opacity:1; transform:translateY(0); }
+
+  /* Rain */
+  .particle-rain { position:fixed; top:0;left:0;right:0;bottom:0; pointer-events:none; z-index:9998; overflow:hidden; }
+  .rain-drop { position:absolute; top:-20px; width:2px; height:15px; background:linear-gradient(180deg,transparent,var(--water)); border-radius:50%; animation:rainFall linear forwards; opacity:0.7; }
+  @keyframes rainFall { from{transform:translateY(0);opacity:0.7} to{transform:translateY(110vh);opacity:0} }
+
+  footer { text-align:center; padding:30px 20px; color:var(--green-dark); font-size:0.9rem; opacity:0.7; }
+
+  @media (max-width:600px) {
+    .growth-step { flex-direction:column; align-items:center; }
+    .growth-step::after { display:none; }
+    .step-circle { width:60px; height:60px; font-size:1.8rem; }
+  }
 </style>
 </head>
 <body>
 
-<div class="stars"></div>
-
 <!-- HERO -->
 <div class="hero">
-  <span class="hero-icon">🌍</span>
-  <h1>大地的奧秘</h1>
-  <p>探索地球的地層結構、板塊運動與大地變動的影響</p>
+  <div class="sun-anim"></div>
+  <div class="cloud cloud1"></div>
+  <div class="cloud cloud2"></div>
+  <h1>🌱 種菜好好玩</h1>
+  <p>探索菜園的秘密，學習照顧蔬菜，見證奇蹟成長！</p>
+  <div class="hero-plants">
+    <span class="hero-plant">🍅</span>
+    <span class="hero-plant">🥕</span>
+    <span class="hero-plant">🥬</span>
+    <span class="hero-plant">🥒</span>
+    <span class="hero-plant">🌽</span>
+  </div>
 </div>
 
-<!-- NAV TABS -->
-<nav class="nav-tabs">
-  <button class="tab-btn active" onclick="showTab('s1', this)">🪨 地層裡有什麼</button>
-  <button class="tab-btn"        onclick="showTab('s2', this)">🌋 大地如何變動</button>
-  <button class="tab-btn"        onclick="showTab('s3', this)">⚡ 變動的影響</button>
+<!-- NAV -->
+<nav class="nav">
+  <button class="nav-btn" onclick="goTo('section1')">🌿 菜園裡的菜</button>
+  <button class="nav-btn" onclick="goTo('section2')">💧 照顧蔬菜</button>
+  <button class="nav-btn" onclick="goTo('section3')">🌽 蔬菜長大了</button>
 </nav>
 
-<!-- ======================== SECTION 1 ======================== -->
-<section id="s1" class="section active">
-  <h2 class="section-title">🪨 地層裡有什麼？</h2>
-  <p class="section-subtitle">點擊各層了解地球內部的秘密 ↓</p>
-
-  <div class="fact-ticker">
-    <span>💡</span>
-    <span id="factText">從地表到地心距離約 6,371 公里，相當於從台北到北京來回 7 趟！</span>
+<!-- SECTION 1 -->
+<section class="section" id="section1">
+  <div class="section-title reveal">
+    <h2>🌿 菜園裡的菜</h2>
+    <span class="underline"></span>
+    <p style="color:#666;margin-top:10px;font-size:0.95rem;">點擊蔬菜卡片，認識它們！</p>
   </div>
-
-  <!-- Earth Cross Section -->
-  <div class="earth-cross reveal">
-    <div class="layer layer-surface" onclick="showDetail('surface')">
-      <span class="layer-icon">🌿</span>
-      <div class="layer-info">
-        <h3>地表與土壤層</h3>
-        <p>植被、土壤、岩石碎屑，孕育所有生命</p>
-      </div>
-      <span class="layer-badge">0 ~ 1 公尺</span>
-    </div>
-    <div class="layer layer-soil" onclick="showDetail('soil')">
-      <span class="layer-icon">🪱</span>
-      <div class="layer-info">
-        <h3>底土與沉積岩層</h3>
-        <p>由泥沙、礫石等沉積物堆疊而成，常含化石</p>
-      </div>
-      <span class="layer-badge">1 ~ 數十公尺</span>
-    </div>
-    <div class="layer layer-rock" onclick="showDetail('rock')">
-      <span class="layer-icon">🗿</span>
-      <div class="layer-info">
-        <h3>岩石層（岩圈）</h3>
-        <p>堅硬的火成岩、變質岩構成地殼主體</p>
-      </div>
-      <span class="layer-badge">深數十公尺以下</span>
-    </div>
-    <div class="layer layer-crust" onclick="showDetail('crust')">
-      <span class="layer-icon">🏔️</span>
-      <div class="layer-info">
-        <h3>地殼</h3>
-        <p>大陸地殼厚達 70km，海洋地殼僅 7km</p>
-      </div>
-      <span class="layer-badge">7 ~ 70 公里厚</span>
-    </div>
-    <div class="layer layer-mantle" onclick="showDetail('mantle')">
-      <span class="layer-icon">🌊</span>
-      <div class="layer-info">
-        <h3>地函（地幔）</h3>
-        <p>半固態岩漿緩慢對流，驅動板塊移動</p>
-      </div>
-      <span class="layer-badge">70 ~ 2,900 公里</span>
-    </div>
-    <div class="layer layer-outer" onclick="showDetail('outer')">
-      <span class="layer-icon">🌀</span>
-      <div class="layer-info">
-        <h3>外地核</h3>
-        <p>液態鐵鎳合金，產生地球磁場保護地球</p>
-      </div>
-      <span class="layer-badge">2,900 ~ 5,100 公里</span>
-    </div>
-    <div class="layer layer-inner" onclick="showDetail('inner')">
-      <span class="layer-icon">⭐</span>
-      <div class="layer-info">
-        <h3>內地核</h3>
-        <p>固態鐵鎳，溫度高達 6,000°C，如同太陽表面</p>
-      </div>
-      <span class="layer-badge">5,100 ~ 6,371 公里</span>
-    </div>
-  </div>
-
-  <!-- Fossils -->
-  <div class="card reveal">
-    <div class="card-title">🦕 地層中的寶藏：化石與礦物</div>
-    <p style="color:#555;margin-bottom:16px;">地層記錄了地球數十億年的歷史，點選以下物件探索！</p>
-    <div class="fossil-grid">
-      <div class="fossil-card" onclick="showDetail('fossil_dino')">
-        <span class="fi">🦖</span>
-        <h4>恐龍化石</h4>
-        <p>告訴我們遠古生物的模樣</p>
-      </div>
-      <div class="fossil-card" onclick="showDetail('fossil_shell')">
-        <span class="fi">🐚</span>
-        <h4>貝殼化石</h4>
-        <p>山上的貝殼說明曾是海洋</p>
-      </div>
-      <div class="fossil-card" onclick="showDetail('mineral')">
-        <span class="fi">💎</span>
-        <h4>礦石晶體</h4>
-        <p>高溫高壓形成的寶石</p>
-      </div>
-      <div class="fossil-card" onclick="showDetail('coal')">
-        <span class="fi">🪨</span>
-        <h4>煤與石油</h4>
-        <p>古代生物壓縮而成的能源</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Stats -->
-  <div class="card reveal">
-    <div class="card-title">📊 地球各層占體積比例</div>
-    <div class="stat-bar-wrap">
-      <div class="stat-label"><span>🌿 地殼</span><span>1%</span></div>
-      <div class="stat-bar"><div class="stat-fill" style="width:1%;background:#4CAF50;"></div></div>
-    </div>
-    <div class="stat-bar-wrap" style="margin-top:12px">
-      <div class="stat-label"><span>🌊 地函</span><span>84%</span></div>
-      <div class="stat-bar"><div class="stat-fill" style="width:84%;background:#B8521A;"></div></div>
-    </div>
-    <div class="stat-bar-wrap" style="margin-top:12px">
-      <div class="stat-label"><span>🌀 外地核</span><span>11%</span></div>
-      <div class="stat-bar"><div class="stat-fill" style="width:11%;background:#FF8C00;"></div></div>
-    </div>
-    <div class="stat-bar-wrap" style="margin-top:12px">
-      <div class="stat-label"><span>⭐ 內地核</span><span>4%</span></div>
-      <div class="stat-bar"><div class="stat-fill" style="width:4%;background:#FFD700;"></div></div>
-    </div>
-  </div>
-
-  <!-- Quiz S1 -->
-  <div class="quiz-wrap reveal">
-    <h3>🧠 小測驗：你學會了嗎？</h3>
-    <div class="quiz-q">
-      <p>❓ 地球哪一層是液態的，並且產生地球磁場？</p>
-      <div class="quiz-opts">
-        <button class="quiz-opt" onclick="answer(this,'wrong')">地殼</button>
-        <button class="quiz-opt" onclick="answer(this,'wrong')">地函</button>
-        <button class="quiz-opt" onclick="answer(this,'correct')">外地核</button>
-        <button class="quiz-opt" onclick="answer(this,'wrong')">內地核</button>
-      </div>
-      <div class="quiz-feedback" id="fb1"></div>
-    </div>
-    <div class="quiz-q">
-      <p>❓ 在山上發現貝殼化石，代表什麼？</p>
-      <div class="quiz-opts">
-        <button class="quiz-opt" onclick="answer(this,'wrong')">海浪衝到山上</button>
-        <button class="quiz-opt" onclick="answer(this,'correct')">該地曾經是海底</button>
-        <button class="quiz-opt" onclick="answer(this,'wrong')">有人把貝殼放在那</button>
-        <button class="quiz-opt" onclick="answer(this,'wrong')">恐龍帶上去的</button>
-      </div>
-      <div class="quiz-feedback" id="fb2"></div>
+  <div class="veggie-grid reveal" id="veggieGrid"></div>
+  <div class="veggie-info-panel" id="veggieInfo">
+    <div class="info-icon" id="infoIcon"></div>
+    <div class="info-content">
+      <h3 id="infoName"></h3>
+      <p id="infoDesc"></p>
+      <div class="info-tags" id="infoTags"></div>
     </div>
   </div>
 </section>
 
-<!-- ======================== SECTION 2 ======================== -->
-<section id="s2" class="section">
-  <h2 class="section-title">🌋 大地如何變動？</h2>
-  <p class="section-subtitle">板塊運動是一切大地變動的根本原因</p>
+<!-- SECTION 2 -->
+<section id="section2" style="background:linear-gradient(135deg,#e0f7fa,#d8f3dc);padding:50px 20px;">
+  <div style="max-width:1100px;margin:0 auto;">
+    <div class="section-title reveal">
+      <h2 class="blue">💧 照顧蔬菜</h2>
+      <span class="underline" style="background:var(--water);"></span>
+      <p style="color:#555;margin-top:10px;font-size:0.95rem;">蔬菜需要細心照料，一起試試看！</p>
+    </div>
+    <div class="care-grid">
 
-  <div class="fact-ticker">
-    <span>💡</span>
-    <span>地球板塊每年移動約 2~10 公分，跟指甲生長速度差不多！</span>
-  </div>
-
-  <div class="motion-grid">
-    <!-- Plate Tectonics -->
-    <div class="card motion-card mc-plates reveal" onclick="showDetail('plates')">
-      <span class="mc-icon">🗺️</span>
-      <h3>板塊運動</h3>
-      <p>地球表面分成十幾塊板塊，在地函的對流推動下緩慢移動。</p>
-      <div class="plate-anim">
-        <div class="plate-left">◀ 歐亞板塊</div>
-        <div class="plate-crack"></div>
-        <div class="plate-right">菲律賓板塊 ▶</div>
+      <!-- WATER -->
+      <div class="care-card care-water reveal">
+        <div class="care-icon-wrap">💧</div>
+        <h3>澆水</h3>
+        <p>蔬菜需要適量水分，太多或太少都不好！</p>
+        <div class="water-game">
+          <span class="game-plant" id="waterPlant">🌱</span>
+          <div style="display:flex;justify-content:space-between;font-size:0.8rem;color:#666;margin-bottom:3px;">
+            <span>缺水</span><span>剛好</span><span>過多</span>
+          </div>
+          <div class="water-bar-bg"><div class="water-bar-fill" id="waterBar"></div></div>
+          <div style="text-align:center;margin-top:10px;">
+            <button class="game-btn btn-water" onclick="doWater()">💧 澆水</button>
+            <button class="game-btn btn-reset" onclick="resetWater()" style="margin-left:8px;">重置</button>
+          </div>
+          <div id="waterMsg" style="text-align:center;margin-top:8px;font-size:0.85rem;color:#0096c7;font-weight:bold;min-height:20px;"></div>
+        </div>
       </div>
-      <p style="font-size:0.8rem;opacity:0.7;margin-top:8px;">▲ 板塊碰撞示意動畫（點擊了解更多）</p>
+
+      <!-- SUN -->
+      <div class="care-card care-sun reveal">
+        <div class="care-icon-wrap">☀️</div>
+        <h3>日照</h3>
+        <p>大多數蔬菜需要充足陽光進行光合作用！</p>
+        <div style="text-align:center;margin-top:15px;">
+          <div class="sun-o-meter" id="sunMeter"></div>
+          <div id="sunLabel" style="font-size:0.9rem;color:#666;">日照不足</div>
+          <div style="display:flex;gap:10px;justify-content:center;margin-top:12px;flex-wrap:wrap;">
+            <button class="game-btn btn-sun" onclick="addSun(60)">🌤️ 上午日照</button>
+            <button class="game-btn btn-sun" onclick="addSun(120)">☀️ 全日日照</button>
+          </div>
+          <button class="game-btn btn-reset" onclick="resetSun()" style="margin-top:8px;">重置</button>
+          <div id="sunMsg" style="margin-top:8px;font-size:0.85rem;color:#854d0e;font-weight:bold;min-height:20px;"></div>
+        </div>
+      </div>
+
+      <!-- SOIL -->
+      <div class="care-card care-soil reveal">
+        <div class="care-icon-wrap">🪱</div>
+        <h3>選擇適合的土壤</h3>
+        <p>不同蔬菜需要不同的土壤，哪種最好？</p>
+        <div style="margin-top:15px;">
+          <p style="font-size:0.9rem;color:#555;margin-bottom:5px;">種番茄，應該選哪種土壤？</p>
+          <div class="soil-choices" id="soilChoices">
+            <button class="soil-btn" data-ans="wrong">🏜️ 沙漠沙土</button>
+            <button class="soil-btn" data-ans="correct">🌱 鬆軟腐植土</button>
+            <button class="soil-btn" data-ans="wrong">🪨 堅硬黏土</button>
+            <button class="soil-btn" data-ans="wrong">🧂 鹽鹼土</button>
+          </div>
+          <div class="soil-feedback" id="soilFeedback"></div>
+        </div>
+      </div>
+
+      <!-- WEED -->
+      <div class="care-card care-remove reveal">
+        <div class="care-icon-wrap">🌾</div>
+        <h3>除草</h3>
+        <p>雜草會搶走養分！點擊雜草來拔除它們！</p>
+        <div class="weed-field" id="weedField"></div>
+        <div id="weedScore" style="font-size:0.9rem;color:#666;margin-top:8px;"></div>
+        <button class="game-btn btn-reset" onclick="resetWeeds()" style="margin-top:10px;">重新長草</button>
+      </div>
+
     </div>
 
-    <!-- Volcano -->
-    <div class="card motion-card mc-volcano reveal" onclick="showDetail('volcano_how')">
-      <span class="mc-icon">🌋</span>
-      <h3>火山噴發</h3>
-      <p>板塊邊界處，高溫岩漿從地殼裂縫噴出，形成火山。</p>
-      <div class="volcano-anim">
-        <div class="volcano-mountain"></div>
-        <div class="lava-particle"></div>
-        <div class="lava-particle"></div>
-        <div class="lava-particle"></div>
-        <div class="lava-particle"></div>
+    <!-- TIPS -->
+    <div class="reveal" style="margin-top:30px;background:white;border-radius:24px;padding:25px;box-shadow:0 4px 20px var(--shadow);">
+      <h3 style="color:var(--green-dark);text-align:center;margin-bottom:20px;font-size:1.3rem;">📋 照顧蔬菜小秘訣</h3>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;">
+        <div style="background:var(--green-pale);border-radius:16px;padding:15px;text-align:center;">
+          <div style="font-size:2rem;">🌅</div>
+          <h4 style="color:var(--green-dark);margin:8px 0 5px;">早晚澆水</h4>
+          <p style="font-size:0.85rem;color:#555;">避免正午澆水，水分容易蒸發</p>
+        </div>
+        <div style="background:#fef9c3;border-radius:16px;padding:15px;text-align:center;">
+          <div style="font-size:2rem;">🌡️</div>
+          <h4 style="color:#854d0e;margin:8px 0 5px;">注意溫度</h4>
+          <p style="font-size:0.85rem;color:#555;">大多數蔬菜適合 15–28°C 環境</p>
+        </div>
+        <div style="background:#fde8d8;border-radius:16px;padding:15px;text-align:center;">
+          <div style="font-size:2rem;">🧪</div>
+          <h4 style="color:#7c3d12;margin:8px 0 5px;">適量施肥</h4>
+          <p style="font-size:0.85rem;color:#555;">有機肥料最佳，避免化學肥料過量</p>
+        </div>
+        <div style="background:#e0f2fe;border-radius:16px;padding:15px;text-align:center;">
+          <div style="font-size:2rem;">🐛</div>
+          <h4 style="color:#075985;margin:8px 0 5px;">防治病蟲害</h4>
+          <p style="font-size:0.85rem;color:#555;">定期觀察葉片，發現異狀立即處理</p>
+        </div>
       </div>
-      <p style="font-size:0.8rem;opacity:0.7;margin-top:8px;">▲ 火山噴發示意動畫</p>
-    </div>
-
-    <!-- Earthquake -->
-    <div class="card motion-card mc-quake reveal" onclick="showDetail('quake_how')">
-      <span class="mc-icon">📳</span>
-      <h3>地震</h3>
-      <p>板塊相互擠壓，地殼岩石突然錯動，釋放巨大能量產生地震波。</p>
-      <div class="quake-anim">
-        <div class="quake-line"></div>
-      </div>
-      <p style="font-size:0.8rem;opacity:0.7;margin-top:8px;">▲ 地震波形示意動畫</p>
-    </div>
-
-    <!-- Folding -->
-    <div class="card motion-card mc-fold reveal" onclick="showDetail('fold_how')">
-      <span class="mc-icon">⛰️</span>
-      <h3>地層褶皺與斷層</h3>
-      <p>板塊擠壓使岩層彎曲（褶皺）或錯動斷裂（斷層），造山運動因此產生。</p>
-      <div class="fold-anim">
-        <div class="fold-layer"></div>
-        <div class="fold-layer"></div>
-        <div class="fold-layer"></div>
-        <div class="fold-layer"></div>
-      </div>
-      <p style="font-size:0.8rem;opacity:0.7;margin-top:8px;">▲ 地層褶皺示意動畫</p>
-    </div>
-  </div>
-
-  <!-- Taiwan -->
-  <div class="card reveal" style="background:linear-gradient(135deg,#fff9f0,#fff3e0);">
-    <div class="card-title" style="color:#7a3a1a;">🇹🇼 台灣的地質特色</div>
-    <p style="color:#555;line-height:1.8;margin-bottom:16px;">台灣位於<strong>菲律賓板塊</strong>與<strong>歐亞板塊</strong>的碰撞邊界，板塊每年以約 <strong>7 公分</strong>的速度擠壓。這使台灣：</p>
-    <div class="info-grid">
-      <div class="info-item">
-        <span class="ii-icon">🏔️</span>
-        <h4>高山林立</h4>
-        <p>超過 100 座海拔 3,000 公尺以上的山峰</p>
-      </div>
-      <div class="info-item">
-        <span class="ii-icon">📳</span>
-        <h4>地震頻繁</h4>
-        <p>每年約 2,000 次可感地震，是世界最多之一</p>
-      </div>
-      <div class="info-item">
-        <span class="ii-icon">♨️</span>
-        <h4>溫泉豐富</h4>
-        <p>地熱資源豐沛，北投、烏來等地溫泉著名</p>
-      </div>
-      <div class="info-item">
-        <span class="ii-icon">🌿</span>
-        <h4>地形多樣</h4>
-        <p>山地、丘陵、平原、盆地各種地形齊全</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Quiz S2 -->
-  <div class="quiz-wrap reveal">
-    <h3>🧠 小測驗：你學會了嗎？</h3>
-    <div class="quiz-q">
-      <p>❓ 驅動板塊移動的主要原因是什麼？</p>
-      <div class="quiz-opts">
-        <button class="quiz-opt" onclick="answer(this,'wrong')">月球的引力</button>
-        <button class="quiz-opt" onclick="answer(this,'correct')">地函的岩漿對流</button>
-        <button class="quiz-opt" onclick="answer(this,'wrong')">地球自轉</button>
-        <button class="quiz-opt" onclick="answer(this,'wrong')">海浪沖刷</button>
-      </div>
-      <div class="quiz-feedback"></div>
-    </div>
-    <div class="quiz-q">
-      <p>❓ 台灣是哪兩個板塊的碰撞邊界？</p>
-      <div class="quiz-opts">
-        <button class="quiz-opt" onclick="answer(this,'wrong')">太平洋板塊 & 北美板塊</button>
-        <button class="quiz-opt" onclick="answer(this,'correct')">菲律賓板塊 & 歐亞板塊</button>
-        <button class="quiz-opt" onclick="answer(this,'wrong')">印澳板塊 & 歐亞板塊</button>
-        <button class="quiz-opt" onclick="answer(this,'wrong')">非洲板塊 & 南極板塊</button>
-      </div>
-      <div class="quiz-feedback"></div>
     </div>
   </div>
 </section>
 
-<!-- ======================== SECTION 3 ======================== -->
-<section id="s3" class="section">
-  <h2 class="section-title">⚡ 大地變動有什麼影響？</h2>
-  <p class="section-subtitle">大地的力量既能摧毀，也能創造美麗地形</p>
-
-  <div class="effect-tabs">
-    <button class="effect-tab-btn active" onclick="showEffect('eq', this)">📳 地震</button>
-    <button class="effect-tab-btn"        onclick="showEffect('vol', this)">🌋 火山</button>
-    <button class="effect-tab-btn"        onclick="showEffect('mtn', this)">⛰️ 造山</button>
-    <button class="effect-tab-btn"        onclick="showEffect('tsu', this)">🌊 海嘯</button>
+<!-- SECTION 3 -->
+<section class="section" id="section3">
+  <div class="section-title reveal">
+    <h2 class="orange">🌽 蔬菜長大了</h2>
+    <span class="underline" style="background:var(--accent);"></span>
+    <p style="color:#666;margin-top:10px;font-size:0.95rem;">點擊每個成長階段，了解蔬菜的生長過程！</p>
   </div>
+  <div class="growth-timeline reveal" id="growthTimeline"></div>
 
-  <!-- Earthquake -->
-  <div id="eff-eq" class="effect-content active">
-    <div class="effect-hero bg-quake">
-      <span class="eh-icon">📳</span>
-      <h2>地震的影響</h2>
-      <p>地殼岩石瞬間錯動，能量在數秒內釋放，造成廣泛破壞，卻也是地球的「洩壓閥」。</p>
-    </div>
-    <div class="info-grid" style="margin-bottom:24px">
-      <div class="info-item">
-        <span class="ii-icon">🏚️</span>
-        <h4>建築物損壞</h4>
-        <p>強烈震動使建築物龜裂、倒塌，威脅人命安全</p>
-      </div>
-      <div class="info-item">
-        <span class="ii-icon">⚡</span>
-        <h4>火災與斷電</h4>
-        <p>管線斷裂引發火災，電力設施損毀停電</p>
-      </div>
-      <div class="info-item">
-        <span class="ii-icon">🏔️</span>
-        <h4>山崩土石流</h4>
-        <p>山坡震鬆引發大規模滑坡，堵塞河道</p>
-      </div>
-      <div class="info-item">
-        <span class="ii-icon">💧</span>
-        <h4>土壤液化</h4>
-        <p>地下水與砂土混合，地面失去支撐力</p>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-title">🗓️ 台灣重大地震歷史</div>
-      <div class="timeline">
-        <div class="tl-item">
-          <h4>1999 年 九二一大地震 (M7.3)</h4>
-          <p>震央位於南投縣集集，造成逾 2,400 人罹難，超過 10 萬棟房屋損毀，斷層錯動使大坑農場地面隆起達 9 公尺。</p>
-        </div>
-        <div class="tl-item">
-          <h4>2016 年 美濃地震 (M6.6)</h4>
-          <p>震央位於高雄美濃，台南市維冠金龍大樓倒塌造成 117 人罹難，引發全台對老舊建築安全的重視。</p>
-        </div>
-        <div class="tl-item">
-          <h4>2024 年 花蓮地震 (M7.2)</h4>
-          <p>台灣 25 年來最大地震，造成太魯閣峽谷大規模崩塌，多棟建築傾倒，再度提醒防災意識的重要。</p>
-        </div>
-      </div>
+  <div class="progress-tracker reveal">
+    <h3>🏆 各種蔬菜生長週期</h3>
+    <p style="text-align:center;color:#666;font-size:0.9rem;margin-bottom:20px;">點擊「開始生長」觀看進度條！</p>
+    <div id="veggieProgressList"></div>
+    <div style="text-align:center;margin-top:20px;">
+      <button class="game-btn" style="background:linear-gradient(135deg,#52b788,#2d6a4f);" onclick="startGrowthAnimation()">🌱 開始生長！</button>
     </div>
   </div>
 
-  <!-- Volcano -->
-  <div id="eff-vol" class="effect-content">
-    <div class="effect-hero bg-volcano">
-      <span class="eh-icon">🌋</span>
-      <h2>火山的影響</h2>
-      <p>火山噴發是地球內部能量的出口，既帶來毀滅，也孕育了肥沃的土地與新的島嶼。</p>
+  <div class="quiz-section reveal">
+    <h3>🧠 小小測驗，挑戰看看！</h3>
+    <div id="quizContainer"></div>
+    <div style="text-align:center;margin-top:20px;">
+      <button class="game-btn" style="background:linear-gradient(135deg,#f77f00,#d62828);" onclick="checkQuiz()">📝 查看成績</button>
     </div>
-    <div class="info-grid" style="margin-bottom:24px">
-      <div class="info-item">
-        <span class="ii-icon">💨</span>
-        <h4>火山灰遮天</h4>
-        <p>大量火山灰飄散到平流層，遮蔽陽光，導致全球氣溫下降</p>
-      </div>
-      <div class="info-item">
-        <span class="ii-icon">🔥</span>
-        <h4>熔岩流破壞</h4>
-        <p>高溫熔岩（約 1,200°C）沿山坡流下，燒毀一切</p>
-      </div>
-      <div class="info-item">
-        <span class="ii-icon">🏝️</span>
-        <h4>形成新島嶼</h4>
-        <p>海底火山不斷噴發，熔岩堆積最終冒出海面，夏威夷即為例證</p>
-      </div>
-      <div class="info-item">
-        <span class="ii-icon">🌱</span>
-        <h4>肥沃的火山土</h4>
-        <p>火山灰富含礦物質，使周邊農地極為肥沃</p>
-      </div>
-    </div>
-    <div class="card" style="background:linear-gradient(135deg,#fff5f5,#ffe8e8);">
-      <div class="card-title" style="color:#8b0000;">🗻 著名火山案例</div>
-      <div class="info-grid">
-        <div class="info-item">
-          <span class="ii-icon">🇮🇩</span>
-          <h4>喀拉喀托火山</h4>
-          <p>1883年大爆發，爆炸聲傳至5,000公里外，引發海嘯奪走36,000命</p>
-        </div>
-        <div class="info-item">
-          <span class="ii-icon">🇮🇹</span>
-          <h4>維蘇威火山</h4>
-          <p>西元79年噴發，埋葬古羅馬城市龐貝，考古出土後震驚世界</p>
-        </div>
-        <div class="info-item">
-          <span class="ii-icon">🇹🇼</span>
-          <h4>龜山島</h4>
-          <p>台灣東北海域的活火山，海底仍有熱泉噴出，是火環帶的一部分</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Mountain -->
-  <div id="eff-mtn" class="effect-content">
-    <div class="effect-hero bg-mountain">
-      <span class="eh-icon">⛰️</span>
-      <h2>造山運動的影響</h2>
-      <p>板塊碰撞在百萬年的時間尺度中緩緩推高地殼，塑造了世界的屋脊與台灣的中央山脈。</p>
-    </div>
-    <div class="info-grid" style="margin-bottom:24px">
-      <div class="info-item">
-        <span class="ii-icon">☁️</span>
-        <h4>影響氣候</h4>
-        <p>高山阻擋水氣，迎風面多雨，背風面乾燥，形成雨影效應</p>
-      </div>
-      <div class="info-item">
-        <span class="ii-icon">🏞️</span>
-        <h4>塑造地形</h4>
-        <p>峽谷、高原、盆地都與造山運動後的侵蝕與沉降有關</p>
-      </div>
-      <div class="info-item">
-        <span class="ii-icon">🌊</span>
-        <h4>改變河流</h4>
-        <p>山脈決定分水嶺位置，影響河流流向與集水區</p>
-      </div>
-      <div class="info-item">
-        <span class="ii-icon">🦁</span>
-        <h4>生物多樣性</h4>
-        <p>山地隔離效應促進物種演化，形成豐富的生態系</p>
-      </div>
-    </div>
-    <div class="card" style="background:linear-gradient(135deg,#f0fff0,#e0ffe0);">
-      <div class="card-title" style="color:#1a5a1a;">⛰️ 全球著名山脈的形成</div>
-      <div class="timeline">
-        <div class="tl-item">
-          <h4>喜馬拉雅山脈（5000萬年前～今）</h4>
-          <p>印度板塊與歐亞板塊碰撞，每年仍以約 5mm 速度上升，珠穆朗瑪峰高達 8,849 公尺。</p>
-        </div>
-        <div class="tl-item">
-          <h4>阿爾卑斯山脈（3500萬年前～今）</h4>
-          <p>非洲板塊北移壓擠歐亞板塊而形成，橫跨歐洲多國。</p>
-        </div>
-        <div class="tl-item">
-          <h4>台灣中央山脈（500萬年前～今）</h4>
-          <p>菲律賓板塊與歐亞板塊持續碰撞，形成台灣的脊梁。玉山每年仍以 0.5 公分速度隆起。</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Tsunami -->
-  <div id="eff-tsu" class="effect-content">
-    <div class="effect-hero bg-tsunami">
-      <span class="eh-icon">🌊</span>
-      <h2>海嘯的影響</h2>
-      <p>海底地震或火山噴發引起的巨大海浪，速度可達 800 km/h，登陸時高達數十公尺。</p>
-    </div>
-    <div class="info-grid" style="margin-bottom:24px">
-      <div class="info-item">
-        <span class="ii-icon">🏙️</span>
-        <h4>沿岸城市破壞</h4>
-        <p>巨浪夾帶碎片衝入內陸，摧毀建築、基礎設施</p>
-      </div>
-      <div class="info-item">
-        <span class="ii-icon">🌿</span>
-        <h4>海岸生態改變</h4>
-        <p>海水倒灌使土地鹽化，珊瑚礁受泥沙掩蓋死亡</p>
-      </div>
-      <div class="info-item">
-        <span class="ii-icon">💧</span>
-        <h4>淡水污染</h4>
-        <p>海水入侵地下水層，造成飲水危機</p>
-      </div>
-      <div class="info-item">
-        <span class="ii-icon">📡</span>
-        <h4>早期預警系統</h4>
-        <p>太平洋海嘯預警中心監測地震，爭取避難時間</p>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-title">🌊 2004 年印度洋大海嘯</div>
-      <p style="color:#555;line-height:1.8;">
-        2004年12月26日，蘇門答臘外海發生芮氏規模 <strong>9.1</strong> 的超強地震，引發印度洋海嘯。
-        浪高在某些地方達到 <strong>30 公尺</strong>，席捲印尼、斯里蘭卡、泰國、印度等 14 國海岸，
-        造成逾 <strong>22 萬人</strong>罹難，是有記錄以來死亡人數最多的天然災害之一。
-        此後，各國加速建立海嘯預警系統，台灣也在東部沿岸設立警報站。
-      </p>
-    </div>
-  </div>
-
-  <!-- Quiz S3 -->
-  <div class="quiz-wrap reveal" style="margin-top:28px">
-    <h3>🧠 小測驗：你學會了嗎？</h3>
-    <div class="quiz-q">
-      <p>❓ 下列哪項是火山噴發帶來的「正面影響」？</p>
-      <div class="quiz-opts">
-        <button class="quiz-opt" onclick="answer(this,'wrong')">引發海嘯</button>
-        <button class="quiz-opt" onclick="answer(this,'wrong')">氣溫下降</button>
-        <button class="quiz-opt" onclick="answer(this,'correct')">形成肥沃的農地</button>
-        <button class="quiz-opt" onclick="answer(this,'wrong')">破壞建築物</button>
-      </div>
-      <div class="quiz-feedback"></div>
-    </div>
-    <div class="quiz-q">
-      <p>❓ 海嘯最常由什麼原因引起？</p>
-      <div class="quiz-opts">
-        <button class="quiz-opt" onclick="answer(this,'correct')">海底地震</button>
-        <button class="quiz-opt" onclick="answer(this,'wrong')">強風吹拂</button>
-        <button class="quiz-opt" onclick="answer(this,'wrong')">月球引力</button>
-        <button class="quiz-opt" onclick="answer(this,'wrong')">洋流變化</button>
-      </div>
-      <div class="quiz-feedback"></div>
-    </div>
+    <div id="quizResult"></div>
   </div>
 </section>
-
-<!-- DETAIL MODAL -->
-<div class="detail-panel" id="detailPanel" onclick="closeDetail(event)">
-  <div class="detail-box" id="detailBox">
-    <button class="close-btn" onclick="closeDetailBtn()">✕</button>
-    <h2 id="detailTitle"></h2>
-    <div id="detailBody"></div>
-  </div>
-</div>
 
 <footer>
-  <p>🌍 大地的奧秘 | 互動視覺學習儀表板 | 探索地球的無窮奧秘</p>
-  <p style="margin-top:8px;font-size:0.8rem;">地球科學 · 板塊構造 · 地質學基礎</p>
+  <p>🌱 種菜好好玩 · 互動視覺學習儀表板 · 讓每個孩子都愛上種植！</p>
 </footer>
 
+<div class="tooltip" id="tooltip"></div>
+<div class="particle-rain" id="particleRain"></div>
+
 <script>
-// Tab navigation
-function showTab(id, btn) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  btn.classList.add('active');
-  checkReveal();
-}
+const veggies = [
+  { icon:'🥬', name:'高麗菜', type:'leaf', tag:'葉菜類', desc:'高麗菜喜歡涼爽環境，葉片層層包裹，富含維生素C。適合秋冬種植，從播種到採收約需 60–80 天。', sun:'充足', water:'適中', days:'60-80天' },
+  { icon:'🍅', name:'番茄', type:'fruit', tag:'果菜類', desc:'番茄喜歡溫暖陽光。果實成熟後由綠轉紅，富含茄紅素，對身體非常有益！', sun:'充足', water:'適中', days:'80-100天' },
+  { icon:'🥕', name:'紅蘿蔔', type:'root', tag:'根莖類', desc:'紅蘿蔔的可食部分是根部，長在土壤裡。富含胡蘿蔔素（維生素A），對眼睛很好！', sun:'適中', water:'適中', days:'70-90天' },
+  { icon:'🥒', name:'小黃瓜', type:'fruit', tag:'果菜類', desc:'小黃瓜生長快速，喜歡溫暖潮濕環境。表皮有細小的刺，清脆爽口！', sun:'充足', water:'多', days:'40-60天' },
+  { icon:'🧅', name:'洋蔥', type:'root', tag:'根莖類', desc:'洋蔥是球莖類蔬菜，切的時候會讓人流眼淚！含有硫化合物，有殺菌效果。', sun:'充足', water:'少', days:'120-150天' },
+  { icon:'🥦', name:'花椰菜', type:'leaf', tag:'葉菜類', desc:'花椰菜食用的部分是花蕾，富含維生素C和纖維質，涼拌、炒食皆宜！', sun:'充足', water:'適中', days:'60-90天' },
+  { icon:'🌽', name:'玉米', type:'fruit', tag:'果菜類', desc:'玉米是高大的草本植物，靠風傳粉。每根玉米的鬚與顆粒一一對應，很神奇！', sun:'充足', water:'多', days:'70-90天' },
+  { icon:'🫑', name:'青椒', type:'fruit', tag:'果菜類', desc:'青椒含有豐富維生素C，比橘子還高！成熟後會變成紅色或黃色。', sun:'充足', water:'適中', days:'60-80天' },
+  { icon:'🧄', name:'大蒜', type:'root', tag:'根莖類', desc:'大蒜由多瓣蒜瓣組成，有強烈香氣，具天然殺菌效果，也可驅趕害蟲！', sun:'適中', water:'少', days:'150-180天' },
+];
 
-// Effect tabs
-function showEffect(id, btn) {
-  document.querySelectorAll('.effect-content').forEach(e => e.classList.remove('active'));
-  document.querySelectorAll('.effect-tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('eff-' + id).classList.add('active');
-  btn.classList.add('active');
-}
+const growthSteps = [
+  { icon:'🫘', num:'第一階段', title:'播種', desc:'選擇健康的種子，放入充滿有機質的土壤中，覆蓋約 0.5–1 公分薄土。澆上少量清水，保持土壤濕潤。' },
+  { icon:'🌱', num:'第二階段', title:'發芽', desc:'播種後 3–7 天，種子開始破土萌芽！這時要保持光線充足，避免強風。幼芽非常脆弱，要輕柔照護。' },
+  { icon:'🌿', num:'第三階段', title:'幼苗期', desc:'幼芽長出 2–4 片真葉後進入幼苗期。這時可以開始施少量有機肥，讓根系更發達！' },
+  { icon:'🪴', num:'第四階段', title:'生長期', desc:'植株快速生長，葉片變多、莖變粗。需要定期除草、澆水，並觀察是否有病蟲害。' },
+  { icon:'🌸', num:'第五階段', title:'開花期', desc:'果菜類（番茄、小黃瓜等）開始開花！花朵吸引蜜蜂授粉，之後才能結果。' },
+  { icon:'🍅', num:'第六階段', title:'採收期', desc:'蔬菜成熟啦！葉菜類葉片飽滿，果菜類顏色鮮豔，根莖類根部膨大，就是採收的好時機！🎉' },
+];
 
-// Quiz
-function answer(btn, result) {
-  const opts = btn.closest('.quiz-opts').querySelectorAll('.quiz-opt');
-  opts.forEach(o => o.disabled = true);
-  btn.classList.add(result);
-  const fb = btn.closest('.quiz-q').querySelector('.quiz-feedback');
-  if (result === 'correct') {
-    fb.innerHTML = '✅ 答對了！非常棒！';
-    fb.style.color = '#27ae60';
-  } else {
-    opts.forEach(o => { if(o.getAttribute('onclick').includes("'correct'")) o.classList.add('correct'); });
-    fb.innerHTML = '❌ 答錯了，看看正確答案（綠色）！';
-    fb.style.color = '#e74c3c';
-  }
-}
+const veggieProgress = [
+  { icon:'🥒', name:'小黃瓜', days:50, pct:100, cls:'vp-harvest' },
+  { icon:'🥬', name:'高麗菜', days:70, pct:85, cls:'vp-harvest' },
+  { icon:'🍅', name:'番茄', days:90, pct:70, cls:'vp-mid' },
+  { icon:'🥕', name:'紅蘿蔔', days:80, pct:60, cls:'vp-mid' },
+  { icon:'🌽', name:'玉米', days:80, pct:55, cls:'vp-mid' },
+  { icon:'🧅', name:'洋蔥', days:135, pct:30, cls:'vp-early' },
+  { icon:'🧄', name:'大蒜', days:165, pct:20, cls:'vp-early' },
+];
 
-// Detail modal data
-const details = {
-  surface: {
-    title: '🌿 地表與土壤層',
-    body: `<p>土壤是由岩石風化後的碎屑、有機物、水分和空氣混合而成。厚度雖只有幾公分到一公尺，卻孕育了地球上幾乎所有的陸地生命。</p><ul><li>🌱 表土層：腐植質最多，最肥沃</li><li>🪨 底土層：礦物質多，有機物少</li><li>🪱 土壤中有無數微生物、蚯蚓幫助分解有機物</li></ul>`
-  },
-  soil: {
-    title: '🪱 沉積岩層',
-    body: `<p>沉積岩由砂、泥、礫石等物質堆積壓縮形成，通常呈現清楚的<strong>層狀結構</strong>。每一層代表一個時期的地質環境。</p><ul><li>📚 越深的地層越古老</li><li>🦕 化石主要保存在沉積岩中</li><li>⛽ 煤炭、石油也常儲存在沉積岩層中</li></ul>`
-  },
-  rock: {
-    title: '🗿 岩石層（岩圈）',
-    body: `<p>岩石圈包含地殼和上地函最頂層，由堅硬岩石組成。分為三大類岩石：</p><ul><li>🔴 火成岩：岩漿冷卻固化（如花崗岩、玄武岩）</li><li>📚 沉積岩：碎屑堆積壓縮（如砂岩、石灰岩）</li><li>💎 變質岩：高溫高壓改造（如大理岩、片麻岩）</li></ul>`
-  },
-  crust: {
-    title: '🏔️ 地殼',
-    body: `<p>地殼是地球最外層的薄殼，分為兩種：</p><ul><li>🌍 <strong>大陸地殼</strong>：厚約 30~70 公里，主要由花崗岩組成，密度較低</li><li>🌊 <strong>海洋地殼</strong>：厚約 5~10 公里，主要由玄武岩組成，密度較高</li><li>⚡ 地殼上承載著所有的山脈、海洋、城市與生命</li></ul>`
-  },
-  mantle: {
-    title: '🌊 地函（地幔）',
-    body: `<p>地函佔地球體積的 84%，是地球最大的圈層。溫度約 1,000~3,700°C。</p><ul><li>🌀 <strong>軟流圈</strong>：上地函的部分呈半固態，岩漿可以緩慢流動</li><li>🔄 地函的<strong>對流運動</strong>是驅動板塊移動的引擎</li><li>⏱️ 岩漿對流速度極慢，完整循環需要數億年</li></ul>`
-  },
-  outer: {
-    title: '🌀 外地核',
-    body: `<p>外地核由液態的鐵鎳合金組成，溫度約 4,000~5,000°C。</p><ul><li>🧲 液態金屬的流動產生<strong>地球磁場</strong></li><li>🛡️ 地球磁場是地球的「盾牌」，阻擋有害的太陽風</li><li>☁️ 沒有磁場，地球大氣層將被太陽風剝蝕，地球會變成火星！</li></ul>`
-  },
-  inner: {
-    title: '⭐ 內地核',
-    body: `<p>內地核是地球最核心的部分，由<strong>固態</strong>鐵鎳組成，半徑約 1,220 公里。</p><ul><li>🔥 溫度高達約 6,000°C，與太陽表面溫度相當</li><li>💪 雖然溫度極高，但因受到巨大壓力（360 萬大氣壓），所以保持固態</li><li>🌍 內地核以稍快於地球其他部分的速度旋轉</li></ul>`
-  },
-  fossil_dino: {
-    title: '🦖 恐龍化石',
-    body: `<p>化石是古代生物的遺骸或痕跡，保存在沉積岩中。恐龍化石幫助我們了解：</p><ul><li>⏰ 地球 6,500 萬年前的生態環境</li><li>📊 古氣候與古地理的變化</li><li>🌍 大陸漂移的證據（南美洲與非洲發現相同化石）</li></ul>`
-  },
-  fossil_shell: {
-    title: '🐚 貝殼化石的啟示',
-    body: `<p>山頂發現貝殼化石是大地變動的有力證據！</p><ul><li>🌊 說明該地在遠古時期是海底環境</li><li>⛰️ 隨著造山運動，海底地層被抬升成高山</li><li>🇳🇵 喜馬拉雅山頂也曾發現海洋化石！</li></ul>`
-  },
-  mineral: {
-    title: '💎 礦石晶體',
-    body: `<p>礦物在地殼深處高溫高壓環境中緩慢結晶形成。</p><ul><li>💎 鑽石：極深處（150km以下）高壓形成的碳晶體</li><li>💎 水晶（石英）：二氧化矽在熱液環境中結晶</li><li>🟢 翡翠：板塊隱沒帶的高壓環境中形成</li></ul>`
-  },
-  coal: {
-    title: '🪨 煤與石油',
-    body: `<p>這些化石燃料是古代生物的遺產：</p><ul><li>🌿 煤炭：3億年前的植物被地層掩埋，經長期壓縮形成</li><li>🐟 石油：遠古海洋生物（浮游生物）沉積後轉化而成</li><li>⚠️ 燃燒化石燃料釋放CO₂，加速全球暖化</li></ul>`
-  },
-  plates: {
-    title: '🗺️ 板塊運動詳解',
-    body: `<p>地球表面分為 <strong>15 個主要板塊</strong>，在地函對流的驅動下緩慢移動，有三種邊界類型：</p><ul><li>🏔️ <strong>碰撞邊界</strong>：兩板塊相撞 → 造山運動（如喜馬拉雅山）</li><li>🌋 <strong>隱沒帶</strong>：密度大的板塊潛入另一板塊下方 → 火山與地震</li><li>🌍 <strong>張裂帶</strong>：板塊分離 → 海底擴張，形成大西洋中洋脊</li></ul>`
-  },
-  volcano_how: {
-    title: '🌋 火山噴發的過程',
-    body: `<p>火山的形成需要三個條件：</p><ul><li>🔥 高溫岩漿（來自地函部分熔融）</li><li>💨 揮發性氣體（水蒸氣、CO₂、SO₂）提供噴發動力</li><li>🚪 通道：地殼裂縫或板塊邊界提供岩漿上升的路徑</li></ul><p style="margin-top:12px;">噴發物包含：熔岩流、火山灰、火山彈、火山氣體，危險程度視火山類型而定。</p>`
-  },
-  quake_how: {
-    title: '📳 地震如何發生',
-    body: `<p>地震的關鍵概念：</p><ul><li>📍 <strong>震源</strong>：地震發生在地殼內的位置</li><li>📍 <strong>震央</strong>：震源正上方的地面位置</li><li>🌊 <strong>地震波</strong>：P波（縱波）最快，S波（橫波）其次，表面波破壞力最大</li><li>📊 <strong>芮氏規模</strong>：每增加 1 級，能量增加約 32 倍</li></ul>`
-  },
-  fold_how: {
-    title: '⛰️ 褶皺與斷層',
-    body: `<p>板塊擠壓讓岩層變形，主要有兩種方式：</p><ul><li>🌊 <strong>褶皺</strong>：岩層緩慢彎曲，向上拱起稱「背斜」，向下凹稱「向斜」，形成山脈</li><li>⚡ <strong>斷層</strong>：岩層受力超過強度時突然斷裂錯動，斷層活動即引發地震</li><li>🇹🇼 台灣的車籠埔斷層是九二一地震的元凶</li></ul>`
-  }
-};
+const quizData = [
+  { q:'蔬菜進行光合作用最需要什麼？', opts:['💧 水分','☀️ 陽光','🧂 鹽份','❄️ 冷空氣'], ans:1, fb:'陽光是光合作用的主要能量來源。' },
+  { q:'下列哪種蔬菜的可食用部分是根？', opts:['🥬 高麗菜','🌽 玉米','🥕 紅蘿蔔','🍅 番茄'], ans:2, fb:'紅蘿蔔的可食部分就是它的根。' },
+  { q:'澆水最好的時機是什麼時候？', opts:['正午豔陽下','🌅 早上或傍晚','🌙 深夜','🌧️ 下大雨時'], ans:1, fb:'早晚澆水水分不易蒸發，效果最好。' },
+  { q:'蔬菜哪個階段會「開花」？', opts:['發芽期','幼苗期','生長期','🌸 開花期'], ans:3, fb:'開花期是果菜類重要的授粉時期。' },
+  { q:'下列哪項最能幫助蔬菜長得好？', opts:['過量澆水','☀️ 適當日照和鬆軟土壤','每天施化學農藥','種在完全遮蔭處'], ans:1, fb:'適當日照加上良好土壤是蔬菜最愛！' },
+];
 
-function showDetail(key) {
-  const d = details[key];
-  if (!d) return;
-  document.getElementById('detailTitle').textContent = d.title;
-  document.getElementById('detailBody').innerHTML = d.body;
-  document.getElementById('detailPanel').classList.add('show');
-}
-function closeDetail(e) {
-  if (e.target.id === 'detailPanel') closeDetailBtn();
-}
-function closeDetailBtn() {
-  document.getElementById('detailPanel').classList.remove('show');
-}
+let waterLevel = 0, sunDegrees = 0, weedCount = 0, selectedCard = null;
+let quizAnswered = {};
 
-// Scroll reveal
-function checkReveal() {
-  document.querySelectorAll('.reveal').forEach(el => {
-    const rect = el.getBoundingClientRect();
-    if (rect.top < window.innerHeight - 60) el.classList.add('visible');
+// INIT
+(function init() {
+  buildVeggieCards();
+  buildGrowthTimeline();
+  buildVeggieProgress();
+  buildQuiz();
+  buildWeedField();
+  setupSoilBtns();
+  setupScrollReveal();
+})();
+
+function buildVeggieCards() {
+  const grid = document.getElementById('veggieGrid');
+  veggies.forEach((v, i) => {
+    const tagCls = v.type === 'leaf' ? 'tag-leaf' : v.type === 'root' ? 'tag-root' : 'tag-fruit';
+    const card = document.createElement('div');
+    card.className = 'veggie-card';
+    card.innerHTML = `<div class="veggie-icon">${v.icon}</div><div class="veggie-name">${v.name}</div><span class="veggie-tag ${tagCls}">${v.tag}</span>`;
+    card.addEventListener('click', () => showVeggieInfo(i, card));
+    grid.appendChild(card);
   });
 }
-window.addEventListener('scroll', checkReveal);
-window.addEventListener('load', () => {
-  checkReveal();
-  // Trigger stat bar animation
-  setTimeout(() => {
-    document.querySelectorAll('.stat-fill').forEach(b => {
-      const w = b.style.width;
-      b.style.width = '0';
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => { b.style.width = w; });
-      });
-    });
-  }, 500);
-});
 
-// Fact ticker
-const facts = [
-  '從地表到地心距離約 6,371 公里，相當於從台北到北京來回 7 趟！',
-  '地球磁場每隔數十萬年就會「翻轉」，南北極互換！',
-  '台灣每年約有 2,000 次可感地震，是全球最高之一。',
-  '喜馬拉雅山每年仍在以約 5 毫米的速度持續上升！',
-  '地球年齡約 46 億年，生命出現在約 38 億年前的海洋。',
-  '海洋地殼比大陸地殼薄，但密度更大，所以隱沒到大陸板塊下方。',
-  '內地核的溫度高達 6,000°C，幾乎和太陽表面一樣熱！',
-];
-let fi = 0;
-setInterval(() => {
-  fi = (fi + 1) % facts.length;
-  const el = document.getElementById('factText');
-  if (el) { el.style.opacity = 0; setTimeout(() => { el.textContent = facts[fi]; el.style.opacity = 1; }, 400); }
-}, 5000);
+function showVeggieInfo(i, card) {
+  if (selectedCard) selectedCard.classList.remove('selected');
+  selectedCard = card;
+  card.classList.add('selected');
+  const v = veggies[i];
+  const panel = document.getElementById('veggieInfo');
+  document.getElementById('infoIcon').textContent = v.icon;
+  document.getElementById('infoName').textContent = v.name;
+  document.getElementById('infoDesc').textContent = v.desc;
+  document.getElementById('infoTags').innerHTML = `
+    <span class="info-badge badge-sun">☀️ 日照：${v.sun}</span>
+    <span class="info-badge badge-water">💧 澆水：${v.water}</span>
+    <span class="info-badge badge-time">⏱️ 生長期：${v.days}</span>
+  `;
+  panel.classList.remove('show');
+  setTimeout(() => panel.classList.add('show'), 50);
+  panel.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+// WATER GAME
+const waterPlants = ['🌱','🌿','🪴','🌻','🍅'];
+function doWater() {
+  if (waterLevel >= 100) {
+    setMsg('waterMsg','⚠️ 土壤已經太濕了！小心爛根！','#e63946'); return;
+  }
+  waterLevel = Math.min(100, waterLevel + 20);
+  document.getElementById('waterBar').style.width = waterLevel + '%';
+  triggerRain(3);
+  const plant = document.getElementById('waterPlant');
+  plant.textContent = waterPlants[Math.min(Math.floor(waterLevel/25), 4)];
+  plant.classList.remove('watered');
+  setTimeout(() => plant.classList.add('watered'), 10);
+  const msgs = ['','💧 植物喝到水了！','🌿 葉片開始舒展！','🌸 快要開花了！','🎉 茁壯成長，準備採收！'];
+  setMsg('waterMsg', msgs[Math.min(Math.floor(waterLevel/25), 4)], '#0096c7');
+  if (waterLevel >= 80) triggerConfetti();
+}
+function resetWater() {
+  waterLevel = 0;
+  document.getElementById('waterBar').style.width = '0%';
+  document.getElementById('waterPlant').textContent = '🌱';
+  document.getElementById('waterPlant').classList.remove('watered');
+  setMsg('waterMsg','','#0096c7');
+}
+
+// SUN GAME
+function addSun(deg) {
+  sunDegrees = Math.min(360, sunDegrees + deg);
+  const meter = document.getElementById('sunMeter');
+  meter.style.background = `conic-gradient(#ffd60a ${sunDegrees}deg, #e5e7eb ${sunDegrees}deg)`;
+  if (sunDegrees < 90) { document.getElementById('sunLabel').textContent='日照不足 😢'; setMsg('sunMsg','需要更多陽光！','#854d0e'); }
+  else if (sunDegrees < 240) { document.getElementById('sunLabel').textContent='日照適中 😊'; setMsg('sunMsg','蔬菜在進行光合作用！','#166534'); }
+  else { document.getElementById('sunLabel').textContent='日照充足 🌟'; setMsg('sunMsg','蔬菜愛死這個太陽！','#92400e'); triggerConfetti(); }
+}
+function resetSun() {
+  sunDegrees = 0;
+  document.getElementById('sunMeter').style.background = 'conic-gradient(#ffd60a 0deg, #e5e7eb 0deg)';
+  document.getElementById('sunLabel').textContent = '日照不足';
+  setMsg('sunMsg','','#854d0e');
+}
+
+// SOIL GAME
+function setupSoilBtns() {
+  document.querySelectorAll('#soilChoices .soil-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const ans = btn.dataset.ans;
+      document.querySelectorAll('#soilChoices .soil-btn').forEach(b => b.style.pointerEvents='none');
+      btn.classList.add(ans);
+      if (ans === 'correct') {
+        setMsg('soilFeedback','✅ 正確！鬆軟腐植土排水好、養分豐富，番茄最愛！','#166534');
+        triggerConfetti();
+      } else {
+        setMsg('soilFeedback','❌ 再試試看！番茄需要鬆軟、排水良好的土壤。','#e63946');
+        setTimeout(() => {
+          document.querySelectorAll('#soilChoices .soil-btn').forEach(b => { b.classList.remove('wrong','correct'); b.style.pointerEvents=''; });
+          setMsg('soilFeedback','','#166534');
+        }, 1500);
+      }
+    });
+  });
+}
+
+// WEED GAME
+function buildWeedField() {
+  const field = document.getElementById('weedField');
+  field.innerHTML = ''; weedCount = 0;
+  const weedEmojis = ['🌾','🌿','🍃','🌵','☘️'];
+  const plantEmojis = ['🌱','🪴','🌻','🍅','🥬'];
+  const items = [
+    ...weedEmojis.map(e => ({ isWeed:true, emoji:e })),
+    ...plantEmojis.map(e => ({ isWeed:false, emoji:e }))
+  ].sort(() => Math.random()-0.5);
+
+  items.forEach(item => {
+    const el = document.createElement('span');
+    el.className = 'weed-item';
+    el.textContent = item.emoji;
+    if (item.isWeed) {
+      el.title = '雜草 - 點擊拔除！';
+      el.addEventListener('click', () => {
+        if (!el.classList.contains('removed')) {
+          el.classList.add('removed'); weedCount++;
+          document.getElementById('weedScore').textContent = weedCount >= 5 ? '🎉 雜草全部清除！蔬菜開心生長了！' : `已拔除 ${weedCount}/5 棵雜草`;
+          if (weedCount >= 5) triggerConfetti();
+        }
+      });
+    } else {
+      el.title = '我是蔬菜，別拔我！';
+      el.addEventListener('click', () => showTooltip('這是蔬菜，別拔它！🥺', el));
+    }
+    field.appendChild(el);
+  });
+  document.getElementById('weedScore').textContent = '已拔除 0/5 棵雜草';
+}
+function resetWeeds() { buildWeedField(); }
+
+// GROWTH TIMELINE
+function buildGrowthTimeline() {
+  const tl = document.getElementById('growthTimeline');
+  growthSteps.forEach((s, i) => {
+    const step = document.createElement('div');
+    step.className = 'growth-step';
+    step.innerHTML = `<div class="step-circle">${s.icon}</div><div class="step-content"><span class="step-num">${s.num}</span><h3>${s.title}</h3><p>${s.desc}</p></div>`;
+    step.addEventListener('click', () => {
+      document.querySelectorAll('.growth-step').forEach(el => el.classList.remove('active'));
+      step.classList.add('active');
+    });
+    tl.appendChild(step);
+  });
+}
+
+// VEGGIE PROGRESS
+function buildVeggieProgress() {
+  const list = document.getElementById('veggieProgressList');
+  veggieProgress.forEach((v, i) => {
+    const item = document.createElement('div');
+    item.className = 'veggie-progress-item';
+    item.innerHTML = `
+      <div class="vp-header"><span class="vp-name">${v.icon} ${v.name}</span><span class="vp-days">約 ${v.days} 天</span></div>
+      <div class="vp-bar-bg"><div class="vp-bar-fill ${v.cls}" id="vpBar${i}" style="width:0%"><span>${v.pct}%</span></div></div>
+    `;
+    list.appendChild(item);
+  });
+}
+function startGrowthAnimation() {
+  veggieProgress.forEach((v, i) => {
+    setTimeout(() => { document.getElementById('vpBar'+i).style.width = v.pct+'%'; }, i*200);
+  });
+}
+
+// QUIZ
+function buildQuiz() {
+  const c = document.getElementById('quizContainer');
+  quizData.forEach((q, qi) => {
+    const div = document.createElement('div');
+    div.className = 'quiz-q';
+    const opts = q.opts.map((o, oi) => `<button class="quiz-opt" onclick="answerQuiz(${qi},${oi},this)">${o}</button>`).join('');
+    div.innerHTML = `<p>${qi+1}. ${q.q}</p><div class="quiz-options">${opts}</div><div class="quiz-fb" id="qfb${qi}"></div>`;
+    c.appendChild(div);
+  });
+}
+function answerQuiz(qi, oi, btn) {
+  if (quizAnswered[qi] !== undefined) return;
+  quizAnswered[qi] = oi;
+  const correct = quizData[qi].ans === oi;
+  btn.closest('.quiz-options').querySelectorAll('.quiz-opt').forEach((b,idx) => {
+    b.style.pointerEvents = 'none';
+    if (idx === quizData[qi].ans) b.classList.add('correct');
+  });
+  if (!correct) btn.classList.add('wrong');
+  const fb = document.getElementById('qfb'+qi);
+  fb.textContent = (correct ? '✅ ' : '❌ ') + quizData[qi].fb;
+  fb.style.color = correct ? '#166534' : '#e63946';
+}
+function checkQuiz() {
+  const total = quizData.length;
+  let correct = 0;
+  quizData.forEach((q,i) => { if (quizAnswered[i] === q.ans) correct++; });
+  const pct = Math.round(correct/total*100);
+  const stars = pct>=80?'⭐⭐⭐':pct>=60?'⭐⭐':'⭐';
+  const msg = pct>=80?'非常棒！🏆':pct>=60?'不錯喔！🌿':'繼續加油！🌱';
+  document.getElementById('quizResult').innerHTML = `
+    <div class="score-board">
+      <h3>📊 測驗結果</h3>
+      <div class="score-num">${correct} / ${total}</div>
+      <div class="stars">${stars}</div>
+      <div class="score-msg">${msg} 答對率 ${pct}%</div>
+    </div>`;
+  document.getElementById('quizResult').scrollIntoView({ behavior:'smooth', block:'center' });
+  if (pct >= 60) triggerConfetti();
+}
+
+// EFFECTS
+function triggerConfetti() {
+  const colors = ['#52b788','#ffd60a','#48cae4','#f77f00','#e63946','#7b2d8b'];
+  for (let i=0; i<30; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti-piece';
+    c.style.cssText = `left:${Math.random()*100}vw;top:${Math.random()*40}vh;background:${colors[Math.floor(Math.random()*colors.length)]};transform:rotate(${Math.random()*360}deg);animation-delay:${Math.random()*0.5}s;`;
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), 2000);
+  }
+}
+function triggerRain(count) {
+  const container = document.getElementById('particleRain');
+  for (let i=0; i<count; i++) {
+    const d = document.createElement('div');
+    d.className = 'rain-drop';
+    d.style.cssText = `left:${Math.random()*100}vw;animation-duration:${0.5+Math.random()*0.5}s;animation-delay:${Math.random()*0.3}s;`;
+    container.appendChild(d);
+    setTimeout(() => d.remove(), 1200);
+  }
+}
+function showTooltip(text, el) {
+  const tt = document.getElementById('tooltip');
+  const rect = el.getBoundingClientRect();
+  tt.textContent = text;
+  tt.style.left = (rect.left + rect.width/2 - 100) + 'px';
+  tt.style.top = (rect.top - 40) + 'px';
+  tt.style.opacity = '1';
+  setTimeout(() => tt.style.opacity='0', 1500);
+}
+function setMsg(id, text, color) {
+  const el = document.getElementById(id);
+  el.textContent = text; el.style.color = color;
+}
+function setupScrollReveal() {
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+}
+function goTo(id) { document.getElementById(id).scrollIntoView({ behavior:'smooth' }); }
 </script>
 </body>
 </html>
