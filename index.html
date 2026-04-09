@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>大地的奧秘 — 互動視覺學習儀表板</title>
+<style>
+  :root {
+    --sky: #87CEEB;
+    --soil: #8B5E3C;
+    --rock: #6B7280;
+    --magma: #FF4500;
+    --mantle: #B8521A;
+    --core-outer: #FF8C00;
+    --core-inner: #FFD700;
+    --grass: #4CAF50;
+    --accent: #E67E22;
+    --text-dark: #1a1a2e;
+    --text-light: #f8f9fa;
+    --card-bg: rgba(255,255,255,0.92);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+    min-height: 100vh;
+    color: var(--text-dark);
+    overflow-x: hidden;
+  }
+
+  /* ===== STARS BACKGROUND ===== */
+  .stars {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 0;
+    background: transparent;
+  }
+  .stars::before, .stars::after {
+    content: '';
+    position: absolute;
+    width: 2px; height: 2px;
+    background: white;
+    border-radius: 50%;
+    box-shadow:
+      120px 80px #fff, 250px 150px #fff, 400px 60px #fff,
+      550px 200px #fff, 700px 100px #fff, 850px 180px #fff,
+      1000px 50px #fff, 150px 300px #ffe, 300px 400px #fff,
+      500px 350px #fff, 650px 280px #ffe, 800px 320px #fff,
+      950px 400px #fff, 80px 500px #fff, 230px 550px #ffe,
+      380px 480px #fff, 530px 520px #fff, 680px 460px #fff,
+      820px 500px #ffe, 970px 530px #fff, 1100px 200px #fff,
+      1200px 350px #ffe, 1300px 100px #fff, 1400px 450px #fff;
+    animation: twinkle 4s infinite alternate;
+  }
+  .stars::after {
+    width: 1px; height: 1px;
+    box-shadow:
+      60px 120px #adf, 190px 230px #ddf, 320px 170px #adf,
+      470px 290px #ddf, 610px 140px #adf, 760px 260px #ddf,
+      900px 190px #adf, 1050px 310px #ddf, 1150px 80px #adf,
+      1250px 240px #ddf, 1350px 380px #adf;
+    animation-delay: 2s;
+  }
+  @keyframes twinkle { from{opacity:.4} to{opacity:1} }
+
+  /* ===== HERO HEADER ===== */
+  .hero {
+    position: relative; z-index: 1;
+    text-align: center;
+    padding: 60px 20px 40px;
+    background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, transparent 100%);
+  }
+  .hero-icon { font-size: 80px; animation: float 3s ease-in-out infinite; display: block; margin-bottom: 16px; }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+  .hero h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 0 0 30px rgba(255,200,100,0.8), 0 4px 20px rgba(0,0,0,0.5);
+    letter-spacing: 4px;
+    margin-bottom: 12px;
+  }
+  .hero p {
+    font-size: 1.15rem;
+    color: rgba(255,255,255,0.75);
+    letter-spacing: 1px;
+  }
+
+  /* ===== NAV TABS ===== */
+  .nav-tabs {
+    position: sticky; top: 0; z-index: 100;
+    display: flex; justify-content: center; gap: 8px;
+    padding: 16px 20px;
+    background: rgba(10,8,30,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    flex-wrap: wrap;
+  }
+  .tab-btn {
+    padding: 10px 24px;
+    border: 2px solid rgba(255,255,255,0.25);
+    border-radius: 30px;
+    background: transparent;
+    color: rgba(255,255,255,0.75);
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-family: inherit;
+  }
+  .tab-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .tab-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    box-shadow: 0 0 20px rgba(230,126,34,0.5);
+  }
+
+  /* ===== SECTIONS ===== */
+  .section {
+    display: none;
+    position: relative; z-index: 1;
+    padding: 40px 20px 60px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .section.active { display: block; animation: fadeIn 0.5s ease; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+  .section-title {
+    text-align: center;
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    font-weight: 900;
+    color: #fff;
+    margin-bottom: 10px;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+  }
+  .section-subtitle {
+    text-align: center;
+    color: rgba(255,255,255,0.6);
+    font-size: 1.05rem;
+    margin-bottom: 40px;
+  }
+
+  /* ===== CARDS ===== */
+  .card {
+    background: var(--card-bg);
+    border-radius: 20px;
+    padding: 28px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    margin-bottom: 24px;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .card:hover { transform: translateY(-4px); box-shadow: 0 16px 48px rgba(0,0,0,0.4); }
+  .card-title {
+    font-size: 1.3rem; font-weight: 800;
+    margin-bottom: 14px; display: flex; align-items: center; gap: 10px;
+  }
+
+  /* ===== SECTION 1: 地層剖面圖 ===== */
+  .earth-cross {
+    border-radius: 20px; overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    margin-bottom: 30px;
+    position: relative;
+    cursor: pointer;
+  }
+  .layer {
+    width: 100%; display: flex; align-items: center;
+    padding: 18px 28px; gap: 16px;
+    position: relative; overflow: hidden;
+    transition: filter 0.3s, transform 0.2s;
+  }
+  .layer:hover { filter: brightness(1.15); transform: scaleX(1.01); }
+  .layer-icon { font-size: 2rem; flex-shrink: 0; }
+  .layer-info h3 { font-size: 1.1rem; font-weight: 800; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.5); }
+  .layer-info p { font-size: 0.88rem; color: rgba(255,255,255,0.9); margin-top: 4px; }
+  .layer-badge {
+    margin-left: auto; flex-shrink: 0;
+    background: rgba(255,255,255,0.25);
+    border-radius: 20px; padding: 4px 14px;
+    font-size: 0.8rem; color: #fff; font-weight: 700;
+    backdrop-filter: blur(4px);
+    white-space: nowrap;
+  }
+
+  .layer-surface  { background: linear-gradient(135deg, #4a7c59, #5a9966); }
+  .layer-soil     { background: linear-gradient(135deg, #7a4a2a, #9b6040); }
+  .layer-rock     { background: linear-gradient(135deg, #555b6e, #727b8e); }
+  .layer-crust    { background: linear-gradient(135deg, #7a6652, #9e8870); }
+  .layer-mantle   { background: linear-gradient(135deg, #b8521a, #d46820); }
+  .layer-outer    { background: linear-gradient(135deg, #e06010, #f08020); }
+  .layer-inner    { background: linear-gradient(135deg, #e8a000, #ffd000); }
+
+  /* ===== DETAIL MODAL ===== */
+  .detail-panel {
+    display: none;
+    position: fixed; inset: 0; z-index: 999;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(6px);
+    align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .detail-panel.show { display: flex; animation: fadeIn 0.3s; }
+  .detail-box {
+    background: #fff; border-radius: 24px;
+    padding: 36px; max-width: 520px; width: 100%;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+  .detail-box h2 { font-size: 1.5rem; font-weight: 900; margin-bottom: 16px; }
+  .detail-box p { font-size: 1rem; line-height: 1.8; color: #444; }
+  .detail-box ul { margin: 12px 0 0 20px; }
+  .detail-box ul li { margin-bottom: 8px; color: #444; font-size: 0.95rem; line-height: 1.6; }
+  .close-btn {
+    position: absolute; top: 16px; right: 20px;
+    font-size: 1.6rem; cursor: pointer; color: #999;
+    background: none; border: none; line-height: 1;
+    transition: color 0.2s;
+  }
+  .close-btn:hover { color: #333; }
+
+  /* Fossil items */
+  .fossil-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px; margin-top: 16px;
+  }
+  .fossil-card {
+    background: linear-gradient(135deg, #fff9f0, #fff3e0);
+    border: 2px solid #f0c080;
+    border-radius: 16px; padding: 20px;
+    text-align: center; cursor: pointer;
+    transition: all 0.3s;
+  }
+  .fossil-card:hover { transform: scale(1.05); border-color: var(--accent); box-shadow: 0 8px 24px rgba(230,126,34,0.2); }
+  .fossil-card .fi { font-size: 2.8rem; display: block; margin-bottom: 8px; }
+  .fossil-card h4 { font-size: 1rem; font-weight: 800; color: #7a4a1a; }
+  .fossil-card p { font-size: 0.82rem; color: #a07040; margin-top: 4px; }
+
+  /* ===== SECTION 2: 大地如何變動 ===== */
+  .motion-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+  }
+  .motion-card {
+    border-radius: 20px; padding: 28px;
+    color: #fff; position: relative; overflow: hidden;
+    cursor: pointer; transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .motion-card:hover { transform: translateY(-6px); box-shadow: 0 20px 48px rgba(0,0,0,0.4); }
+  .motion-card h3 { font-size: 1.25rem; font-weight: 900; margin-bottom: 10px; }
+  .motion-card p { font-size: 0.92rem; line-height: 1.7; opacity: 0.92; }
+  .motion-card .mc-icon { font-size: 3.5rem; margin-bottom: 14px; display: block; }
+  .mc-plates  { background: linear-gradient(135deg, #1a1a2e, #16213e); }
+  .mc-volcano { background: linear-gradient(135deg, #8B0000, #cc2200); }
+  .mc-quake   { background: linear-gradient(135deg, #1a3a1a, #2d6e2d); }
+  .mc-fold    { background: linear-gradient(135deg, #3a2a0a, #7a5a1a); }
+
+  /* Plate animation */
+  .plate-anim {
+    width: 100%; height: 80px; position: relative;
+    overflow: hidden; border-radius: 12px;
+    background: #0a0a2a; margin: 12px 0;
+  }
+  .plate-left, .plate-right {
+    position: absolute; top: 20px; height: 40px;
+    background: #4a8a5a; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-weight: 700; font-size: 0.8rem;
+    padding: 0 14px;
+  }
+  .plate-left  { left: 0;   animation: plateL 3s ease-in-out infinite alternate; }
+  .plate-right { right: 0;  animation: plateR 3s ease-in-out infinite alternate; }
+  @keyframes plateL { from{left:0} to{left:28%} }
+  @keyframes plateR { from{right:0} to{right:28%} }
+  .plate-crack {
+    position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+    width: 4px; height: 100%;
+    background: linear-gradient(180deg, transparent, #ff4500, transparent);
+    animation: crack 3s ease-in-out infinite alternate;
+  }
+  @keyframes crack { from{opacity:0.3} to{opacity:1} }
+
+  /* Volcano animation */
+  .volcano-anim {
+    width: 100%; height: 100px; position: relative;
+    overflow: hidden; border-radius: 12px;
+    background: #1a0a00; margin: 12px 0;
+  }
+  .volcano-mountain {
+    position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 60px solid transparent;
+    border-right: 60px solid transparent;
+    border-bottom: 70px solid #4a2a1a;
+  }
+  .lava-particle {
+    position: absolute;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #ff8c00, #ff4500);
+    bottom: 30px; left: 50%;
+    animation: lavaPop 1.5s ease-out infinite;
+  }
+  .lava-particle:nth-child(2) { animation-delay: 0.4s; }
+  .lava-particle:nth-child(3) { animation-delay: 0.8s; }
+  .lava-particle:nth-child(4) { animation-delay: 1.1s; }
+  @keyframes lavaPop {
+    0%   { transform: translate(-50%, 0) scale(1); opacity: 1; }
+    100% { transform: translate(calc(-50% + var(--dx, 20px)), -80px) scale(0.2); opacity: 0; }
+  }
+  .lava-particle:nth-child(1) { --dx: 10px; }
+  .lava-particle:nth-child(2) { --dx: -25px; }
+  .lava-particle:nth-child(3) { --dx: 30px; }
+  .lava-particle:nth-child(4) { --dx: -10px; }
+
+  /* Earthquake animation */
+  .quake-anim {
+    width: 100%; height: 80px; position: relative;
+    overflow: hidden; border-radius: 12px;
+    background: #0a1a0a; margin: 12px 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .quake-line {
+    width: 90%; height: 3px;
+    background: #4CAF50;
+    position: relative;
+    clip-path: polygon(0 50%, 10% 50%, 15% 0%, 20% 100%, 25% 50%, 35% 50%, 38% 20%, 42% 80%, 46% 50%, 60% 50%, 62% 30%, 65% 70%, 68% 50%, 80% 50%, 83% 10%, 87% 90%, 90% 50%, 100% 50%);
+    animation: quakeShake 0.8s linear infinite;
+  }
+  @keyframes quakeShake {
+    0%,100% { opacity: 0.6; }
+    50%      { opacity: 1; filter: brightness(1.5); }
+  }
+
+  /* Folding animation */
+  .fold-anim {
+    width: 100%; height: 80px; position: relative;
+    overflow: hidden; border-radius: 12px;
+    background: #1a1000; margin: 12px 0;
+    display: flex; align-items: flex-end;
+  }
+  .fold-layer {
+    position: absolute; width: 100%; height: 14px;
+    border-radius: 4px;
+  }
+  .fold-layer:nth-child(1) { background:#c0a060; bottom:60px; animation: fold1 4s ease-in-out infinite alternate; }
+  .fold-layer:nth-child(2) { background:#a08040; bottom:44px; animation: fold2 4s ease-in-out infinite alternate; }
+  .fold-layer:nth-child(3) { background:#806020; bottom:28px; animation: fold3 4s ease-in-out infinite alternate; }
+  .fold-layer:nth-child(4) { background:#604010; bottom:12px; animation: fold4 4s ease-in-out infinite alternate; }
+  @keyframes fold1 { from{clip-path:polygon(0 50%,50% 50%,100% 50%)} to{clip-path:polygon(0 80%,25% 10%,50% 80%,75% 10%,100% 80%)} }
+  @keyframes fold2 { from{clip-path:polygon(0 50%,50% 50%,100% 50%)} to{clip-path:polygon(0 20%,25% 90%,50% 20%,75% 90%,100% 20%)} }
+  @keyframes fold3 { from{clip-path:polygon(0 50%,50% 50%,100% 50%)} to{clip-path:polygon(0 80%,25% 10%,50% 80%,75% 10%,100% 80%)} }
+  @keyframes fold4 { from{clip-path:polygon(0 50%,50% 50%,100% 50%)} to{clip-path:polygon(0 20%,25% 90%,50% 20%,75% 90%,100% 20%)} }
+
+  /* ===== SECTION 3: 大地變動影響 ===== */
+  .effect-tabs {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    justify-content: center; margin-bottom: 28px;
+  }
+  .effect-tab-btn {
+    padding: 8px 20px; border-radius: 20px;
+    border: 2px solid rgba(255,255,255,0.3);
+    background: transparent; color: rgba(255,255,255,0.7);
+    font-size: 0.95rem; font-weight: 700; cursor: pointer;
+    transition: all 0.3s; font-family: inherit;
+  }
+  .effect-tab-btn.active, .effect-tab-btn:hover {
+    background: #e74c3c; border-color: #e74c3c; color: #fff;
+    box-shadow: 0 0 16px rgba(231,76,60,0.4);
+  }
+  .effect-content { display: none; }
+  .effect-content.active { display: block; animation: fadeIn 0.4s; }
+
+  .effect-hero {
+    border-radius: 20px; padding: 36px;
+    color: #fff; text-align: center; margin-bottom: 24px;
+    position: relative; overflow: hidden;
+  }
+  .effect-hero h2 { font-size: 2rem; font-weight: 900; margin-bottom: 10px; }
+  .effect-hero p { font-size: 1.05rem; opacity: 0.9; max-width: 500px; margin: 0 auto; line-height: 1.7; }
+  .effect-hero .eh-icon { font-size: 5rem; display: block; margin-bottom: 16px; animation: float 3s infinite; }
+
+  .bg-quake    { background: linear-gradient(135deg, #1a1a1a, #3a3a3a); }
+  .bg-volcano  { background: linear-gradient(135deg, #6b0000, #c0392b); }
+  .bg-mountain { background: linear-gradient(135deg, #1a3a1a, #276221); }
+  .bg-tsunami  { background: linear-gradient(135deg, #001a3a, #006494); }
+
+  .info-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+  }
+  .info-item {
+    background: var(--card-bg); border-radius: 16px;
+    padding: 20px; text-align: center;
+    transition: transform 0.3s;
+  }
+  .info-item:hover { transform: translateY(-4px); }
+  .info-item .ii-icon { font-size: 2.4rem; display: block; margin-bottom: 10px; }
+  .info-item h4 { font-size: 1rem; font-weight: 800; color: #333; margin-bottom: 6px; }
+  .info-item p  { font-size: 0.85rem; color: #666; line-height: 1.6; }
+
+  /* Timeline */
+  .timeline {
+    position: relative; padding-left: 32px;
+  }
+  .timeline::before {
+    content: ''; position: absolute; left: 12px; top: 0; bottom: 0;
+    width: 3px; background: linear-gradient(180deg, #e74c3c, #3498db);
+    border-radius: 2px;
+  }
+  .tl-item {
+    position: relative; margin-bottom: 24px;
+    background: var(--card-bg); border-radius: 16px;
+    padding: 20px 20px 20px 24px;
+  }
+  .tl-item::before {
+    content: ''; position: absolute; left: -26px; top: 22px;
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--accent); border: 3px solid #fff;
+    box-shadow: 0 0 8px rgba(230,126,34,0.5);
+  }
+  .tl-item h4 { font-weight: 800; color: #333; margin-bottom: 6px; }
+  .tl-item p  { font-size: 0.9rem; color: #555; line-height: 1.6; }
+
+  /* ===== QUIZ CARD ===== */
+  .quiz-wrap {
+    background: linear-gradient(135deg, #1a0a3a, #2d1a5a);
+    border-radius: 20px; padding: 32px;
+    color: #fff; margin-top: 20px;
+  }
+  .quiz-wrap h3 { font-size: 1.3rem; font-weight: 900; margin-bottom: 20px; }
+  .quiz-q {
+    background: rgba(255,255,255,0.1); border-radius: 14px;
+    padding: 20px; margin-bottom: 16px;
+  }
+  .quiz-q p { font-size: 1rem; margin-bottom: 14px; line-height: 1.6; }
+  .quiz-opts { display: flex; flex-wrap: wrap; gap: 8px; }
+  .quiz-opt {
+    padding: 8px 18px; border-radius: 20px;
+    border: 2px solid rgba(255,255,255,0.3);
+    background: transparent; color: #fff;
+    cursor: pointer; font-size: 0.9rem; font-weight: 600;
+    transition: all 0.3s; font-family: inherit;
+  }
+  .quiz-opt:hover { border-color: #fff; background: rgba(255,255,255,0.15); }
+  .quiz-opt.correct { background: #27ae60; border-color: #27ae60; }
+  .quiz-opt.wrong   { background: #e74c3c; border-color: #e74c3c; }
+  .quiz-feedback { margin-top: 10px; font-size: 0.88rem; min-height: 22px; }
+
+  /* ===== FACT TICKER ===== */
+  .fact-ticker {
+    background: rgba(255,165,0,0.15);
+    border: 1px solid rgba(255,165,0,0.3);
+    border-radius: 12px; padding: 14px 20px;
+    margin: 20px 0;
+    color: rgba(255,255,255,0.9);
+    font-size: 0.95rem;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .fact-ticker span:first-child { font-size: 1.4rem; flex-shrink: 0; }
+
+  /* ===== PROGRESS BAR ===== */
+  .stat-bar-wrap { margin-top: 8px; }
+  .stat-label { display: flex; justify-content: space-between; font-size: 0.82rem; color: #666; margin-bottom: 4px; }
+  .stat-bar { height: 10px; background: #e0e0e0; border-radius: 8px; overflow: hidden; }
+  .stat-fill { height: 100%; border-radius: 8px; transition: width 1.5s cubic-bezier(.4,0,.2,1); }
+
+  /* ===== FOOTER ===== */
+  footer {
+    position: relative; z-index: 1;
+    text-align: center; padding: 32px 20px;
+    color: rgba(255,255,255,0.4);
+    font-size: 0.88rem;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media(max-width:600px) {
+    .hero h1 { font-size: 1.8rem; }
+    .motion-grid { grid-template-columns: 1fr; }
+    .fossil-grid { grid-template-columns: repeat(2, 1fr); }
+    .info-grid   { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* Scroll reveal */
+  .reveal { opacity: 0; transform: translateY(30px); transition: all 0.7s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="stars"></div>
+
+<!-- HERO -->
+<div class="hero">
+  <span class="hero-icon">🌍</span>
+  <h1>大地的奧秘</h1>
+  <p>探索地球的地層結構、板塊運動與大地變動的影響</p>
+</div>
+
+<!-- NAV TABS -->
+<nav class="nav-tabs">
+  <button class="tab-btn active" onclick="showTab('s1', this)">🪨 地層裡有什麼</button>
+  <button class="tab-btn"        onclick="showTab('s2', this)">🌋 大地如何變動</button>
+  <button class="tab-btn"        onclick="showTab('s3', this)">⚡ 變動的影響</button>
+</nav>
+
+<!-- ======================== SECTION 1 ======================== -->
+<section id="s1" class="section active">
+  <h2 class="section-title">🪨 地層裡有什麼？</h2>
+  <p class="section-subtitle">點擊各層了解地球內部的秘密 ↓</p>
+
+  <div class="fact-ticker">
+    <span>💡</span>
+    <span id="factText">從地表到地心距離約 6,371 公里，相當於從台北到北京來回 7 趟！</span>
+  </div>
+
+  <!-- Earth Cross Section -->
+  <div class="earth-cross reveal">
+    <div class="layer layer-surface" onclick="showDetail('surface')">
+      <span class="layer-icon">🌿</span>
+      <div class="layer-info">
+        <h3>地表與土壤層</h3>
+        <p>植被、土壤、岩石碎屑，孕育所有生命</p>
+      </div>
+      <span class="layer-badge">0 ~ 1 公尺</span>
+    </div>
+    <div class="layer layer-soil" onclick="showDetail('soil')">
+      <span class="layer-icon">🪱</span>
+      <div class="layer-info">
+        <h3>底土與沉積岩層</h3>
+        <p>由泥沙、礫石等沉積物堆疊而成，常含化石</p>
+      </div>
+      <span class="layer-badge">1 ~ 數十公尺</span>
+    </div>
+    <div class="layer layer-rock" onclick="showDetail('rock')">
+      <span class="layer-icon">🗿</span>
+      <div class="layer-info">
+        <h3>岩石層（岩圈）</h3>
+        <p>堅硬的火成岩、變質岩構成地殼主體</p>
+      </div>
+      <span class="layer-badge">深數十公尺以下</span>
+    </div>
+    <div class="layer layer-crust" onclick="showDetail('crust')">
+      <span class="layer-icon">🏔️</span>
+      <div class="layer-info">
+        <h3>地殼</h3>
+        <p>大陸地殼厚達 70km，海洋地殼僅 7km</p>
+      </div>
+      <span class="layer-badge">7 ~ 70 公里厚</span>
+    </div>
+    <div class="layer layer-mantle" onclick="showDetail('mantle')">
+      <span class="layer-icon">🌊</span>
+      <div class="layer-info">
+        <h3>地函（地幔）</h3>
+        <p>半固態岩漿緩慢對流，驅動板塊移動</p>
+      </div>
+      <span class="layer-badge">70 ~ 2,900 公里</span>
+    </div>
+    <div class="layer layer-outer" onclick="showDetail('outer')">
+      <span class="layer-icon">🌀</span>
+      <div class="layer-info">
+        <h3>外地核</h3>
+        <p>液態鐵鎳合金，產生地球磁場保護地球</p>
+      </div>
+      <span class="layer-badge">2,900 ~ 5,100 公里</span>
+    </div>
+    <div class="layer layer-inner" onclick="showDetail('inner')">
+      <span class="layer-icon">⭐</span>
+      <div class="layer-info">
+        <h3>內地核</h3>
+        <p>固態鐵鎳，溫度高達 6,000°C，如同太陽表面</p>
+      </div>
+      <span class="layer-badge">5,100 ~ 6,371 公里</span>
+    </div>
+  </div>
+
+  <!-- Fossils -->
+  <div class="card reveal">
+    <div class="card-title">🦕 地層中的寶藏：化石與礦物</div>
+    <p style="color:#555;margin-bottom:16px;">地層記錄了地球數十億年的歷史，點選以下物件探索！</p>
+    <div class="fossil-grid">
+      <div class="fossil-card" onclick="showDetail('fossil_dino')">
+        <span class="fi">🦖</span>
+        <h4>恐龍化石</h4>
+        <p>告訴我們遠古生物的模樣</p>
+      </div>
+      <div class="fossil-card" onclick="showDetail('fossil_shell')">
+        <span class="fi">🐚</span>
+        <h4>貝殼化石</h4>
+        <p>山上的貝殼說明曾是海洋</p>
+      </div>
+      <div class="fossil-card" onclick="showDetail('mineral')">
+        <span class="fi">💎</span>
+        <h4>礦石晶體</h4>
+        <p>高溫高壓形成的寶石</p>
+      </div>
+      <div class="fossil-card" onclick="showDetail('coal')">
+        <span class="fi">🪨</span>
+        <h4>煤與石油</h4>
+        <p>古代生物壓縮而成的能源</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="card reveal">
+    <div class="card-title">📊 地球各層占體積比例</div>
+    <div class="stat-bar-wrap">
+      <div class="stat-label"><span>🌿 地殼</span><span>1%</span></div>
+      <div class="stat-bar"><div class="stat-fill" style="width:1%;background:#4CAF50;"></div></div>
+    </div>
+    <div class="stat-bar-wrap" style="margin-top:12px">
+      <div class="stat-label"><span>🌊 地函</span><span>84%</span></div>
+      <div class="stat-bar"><div class="stat-fill" style="width:84%;background:#B8521A;"></div></div>
+    </div>
+    <div class="stat-bar-wrap" style="margin-top:12px">
+      <div class="stat-label"><span>🌀 外地核</span><span>11%</span></div>
+      <div class="stat-bar"><div class="stat-fill" style="width:11%;background:#FF8C00;"></div></div>
+    </div>
+    <div class="stat-bar-wrap" style="margin-top:12px">
+      <div class="stat-label"><span>⭐ 內地核</span><span>4%</span></div>
+      <div class="stat-bar"><div class="stat-fill" style="width:4%;background:#FFD700;"></div></div>
+    </div>
+  </div>
+
+  <!-- Quiz S1 -->
+  <div class="quiz-wrap reveal">
+    <h3>🧠 小測驗：你學會了嗎？</h3>
+    <div class="quiz-q">
+      <p>❓ 地球哪一層是液態的，並且產生地球磁場？</p>
+      <div class="quiz-opts">
+        <button class="quiz-opt" onclick="answer(this,'wrong')">地殼</button>
+        <button class="quiz-opt" onclick="answer(this,'wrong')">地函</button>
+        <button class="quiz-opt" onclick="answer(this,'correct')">外地核</button>
+        <button class="quiz-opt" onclick="answer(this,'wrong')">內地核</button>
+      </div>
+      <div class="quiz-feedback" id="fb1"></div>
+    </div>
+    <div class="quiz-q">
+      <p>❓ 在山上發現貝殼化石，代表什麼？</p>
+      <div class="quiz-opts">
+        <button class="quiz-opt" onclick="answer(this,'wrong')">海浪衝到山上</button>
+        <button class="quiz-opt" onclick="answer(this,'correct')">該地曾經是海底</button>
+        <button class="quiz-opt" onclick="answer(this,'wrong')">有人把貝殼放在那</button>
+        <button class="quiz-opt" onclick="answer(this,'wrong')">恐龍帶上去的</button>
+      </div>
+      <div class="quiz-feedback" id="fb2"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================== SECTION 2 ======================== -->
+<section id="s2" class="section">
+  <h2 class="section-title">🌋 大地如何變動？</h2>
+  <p class="section-subtitle">板塊運動是一切大地變動的根本原因</p>
+
+  <div class="fact-ticker">
+    <span>💡</span>
+    <span>地球板塊每年移動約 2~10 公分，跟指甲生長速度差不多！</span>
+  </div>
+
+  <div class="motion-grid">
+    <!-- Plate Tectonics -->
+    <div class="card motion-card mc-plates reveal" onclick="showDetail('plates')">
+      <span class="mc-icon">🗺️</span>
+      <h3>板塊運動</h3>
+      <p>地球表面分成十幾塊板塊，在地函的對流推動下緩慢移動。</p>
+      <div class="plate-anim">
+        <div class="plate-left">◀ 歐亞板塊</div>
+        <div class="plate-crack"></div>
+        <div class="plate-right">菲律賓板塊 ▶</div>
+      </div>
+      <p style="font-size:0.8rem;opacity:0.7;margin-top:8px;">▲ 板塊碰撞示意動畫（點擊了解更多）</p>
+    </div>
+
+    <!-- Volcano -->
+    <div class="card motion-card mc-volcano reveal" onclick="showDetail('volcano_how')">
+      <span class="mc-icon">🌋</span>
+      <h3>火山噴發</h3>
+      <p>板塊邊界處，高溫岩漿從地殼裂縫噴出，形成火山。</p>
+      <div class="volcano-anim">
+        <div class="volcano-mountain"></div>
+        <div class="lava-particle"></div>
+        <div class="lava-particle"></div>
+        <div class="lava-particle"></div>
+        <div class="lava-particle"></div>
+      </div>
+      <p style="font-size:0.8rem;opacity:0.7;margin-top:8px;">▲ 火山噴發示意動畫</p>
+    </div>
+
+    <!-- Earthquake -->
+    <div class="card motion-card mc-quake reveal" onclick="showDetail('quake_how')">
+      <span class="mc-icon">📳</span>
+      <h3>地震</h3>
+      <p>板塊相互擠壓，地殼岩石突然錯動，釋放巨大能量產生地震波。</p>
+      <div class="quake-anim">
+        <div class="quake-line"></div>
+      </div>
+      <p style="font-size:0.8rem;opacity:0.7;margin-top:8px;">▲ 地震波形示意動畫</p>
+    </div>
+
+    <!-- Folding -->
+    <div class="card motion-card mc-fold reveal" onclick="showDetail('fold_how')">
+      <span class="mc-icon">⛰️</span>
+      <h3>地層褶皺與斷層</h3>
+      <p>板塊擠壓使岩層彎曲（褶皺）或錯動斷裂（斷層），造山運動因此產生。</p>
+      <div class="fold-anim">
+        <div class="fold-layer"></div>
+        <div class="fold-layer"></div>
+        <div class="fold-layer"></div>
+        <div class="fold-layer"></div>
+      </div>
+      <p style="font-size:0.8rem;opacity:0.7;margin-top:8px;">▲ 地層褶皺示意動畫</p>
+    </div>
+  </div>
+
+  <!-- Taiwan -->
+  <div class="card reveal" style="background:linear-gradient(135deg,#fff9f0,#fff3e0);">
+    <div class="card-title" style="color:#7a3a1a;">🇹🇼 台灣的地質特色</div>
+    <p style="color:#555;line-height:1.8;margin-bottom:16px;">台灣位於<strong>菲律賓板塊</strong>與<strong>歐亞板塊</strong>的碰撞邊界，板塊每年以約 <strong>7 公分</strong>的速度擠壓。這使台灣：</p>
+    <div class="info-grid">
+      <div class="info-item">
+        <span class="ii-icon">🏔️</span>
+        <h4>高山林立</h4>
+        <p>超過 100 座海拔 3,000 公尺以上的山峰</p>
+      </div>
+      <div class="info-item">
+        <span class="ii-icon">📳</span>
+        <h4>地震頻繁</h4>
+        <p>每年約 2,000 次可感地震，是世界最多之一</p>
+      </div>
+      <div class="info-item">
+        <span class="ii-icon">♨️</span>
+        <h4>溫泉豐富</h4>
+        <p>地熱資源豐沛，北投、烏來等地溫泉著名</p>
+      </div>
+      <div class="info-item">
+        <span class="ii-icon">🌿</span>
+        <h4>地形多樣</h4>
+        <p>山地、丘陵、平原、盆地各種地形齊全</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quiz S2 -->
+  <div class="quiz-wrap reveal">
+    <h3>🧠 小測驗：你學會了嗎？</h3>
+    <div class="quiz-q">
+      <p>❓ 驅動板塊移動的主要原因是什麼？</p>
+      <div class="quiz-opts">
+        <button class="quiz-opt" onclick="answer(this,'wrong')">月球的引力</button>
+        <button class="quiz-opt" onclick="answer(this,'correct')">地函的岩漿對流</button>
+        <button class="quiz-opt" onclick="answer(this,'wrong')">地球自轉</button>
+        <button class="quiz-opt" onclick="answer(this,'wrong')">海浪沖刷</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+    <div class="quiz-q">
+      <p>❓ 台灣是哪兩個板塊的碰撞邊界？</p>
+      <div class="quiz-opts">
+        <button class="quiz-opt" onclick="answer(this,'wrong')">太平洋板塊 & 北美板塊</button>
+        <button class="quiz-opt" onclick="answer(this,'correct')">菲律賓板塊 & 歐亞板塊</button>
+        <button class="quiz-opt" onclick="answer(this,'wrong')">印澳板塊 & 歐亞板塊</button>
+        <button class="quiz-opt" onclick="answer(this,'wrong')">非洲板塊 & 南極板塊</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================== SECTION 3 ======================== -->
+<section id="s3" class="section">
+  <h2 class="section-title">⚡ 大地變動有什麼影響？</h2>
+  <p class="section-subtitle">大地的力量既能摧毀，也能創造美麗地形</p>
+
+  <div class="effect-tabs">
+    <button class="effect-tab-btn active" onclick="showEffect('eq', this)">📳 地震</button>
+    <button class="effect-tab-btn"        onclick="showEffect('vol', this)">🌋 火山</button>
+    <button class="effect-tab-btn"        onclick="showEffect('mtn', this)">⛰️ 造山</button>
+    <button class="effect-tab-btn"        onclick="showEffect('tsu', this)">🌊 海嘯</button>
+  </div>
+
+  <!-- Earthquake -->
+  <div id="eff-eq" class="effect-content active">
+    <div class="effect-hero bg-quake">
+      <span class="eh-icon">📳</span>
+      <h2>地震的影響</h2>
+      <p>地殼岩石瞬間錯動，能量在數秒內釋放，造成廣泛破壞，卻也是地球的「洩壓閥」。</p>
+    </div>
+    <div class="info-grid" style="margin-bottom:24px">
+      <div class="info-item">
+        <span class="ii-icon">🏚️</span>
+        <h4>建築物損壞</h4>
+        <p>強烈震動使建築物龜裂、倒塌，威脅人命安全</p>
+      </div>
+      <div class="info-item">
+        <span class="ii-icon">⚡</span>
+        <h4>火災與斷電</h4>
+        <p>管線斷裂引發火災，電力設施損毀停電</p>
+      </div>
+      <div class="info-item">
+        <span class="ii-icon">🏔️</span>
+        <h4>山崩土石流</h4>
+        <p>山坡震鬆引發大規模滑坡，堵塞河道</p>
+      </div>
+      <div class="info-item">
+        <span class="ii-icon">💧</span>
+        <h4>土壤液化</h4>
+        <p>地下水與砂土混合，地面失去支撐力</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🗓️ 台灣重大地震歷史</div>
+      <div class="timeline">
+        <div class="tl-item">
+          <h4>1999 年 九二一大地震 (M7.3)</h4>
+          <p>震央位於南投縣集集，造成逾 2,400 人罹難，超過 10 萬棟房屋損毀，斷層錯動使大坑農場地面隆起達 9 公尺。</p>
+        </div>
+        <div class="tl-item">
+          <h4>2016 年 美濃地震 (M6.6)</h4>
+          <p>震央位於高雄美濃，台南市維冠金龍大樓倒塌造成 117 人罹難，引發全台對老舊建築安全的重視。</p>
+        </div>
+        <div class="tl-item">
+          <h4>2024 年 花蓮地震 (M7.2)</h4>
+          <p>台灣 25 年來最大地震，造成太魯閣峽谷大規模崩塌，多棟建築傾倒，再度提醒防災意識的重要。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Volcano -->
+  <div id="eff-vol" class="effect-content">
+    <div class="effect-hero bg-volcano">
+      <span class="eh-icon">🌋</span>
+      <h2>火山的影響</h2>
+      <p>火山噴發是地球內部能量的出口，既帶來毀滅，也孕育了肥沃的土地與新的島嶼。</p>
+    </div>
+    <div class="info-grid" style="margin-bottom:24px">
+      <div class="info-item">
+        <span class="ii-icon">💨</span>
+        <h4>火山灰遮天</h4>
+        <p>大量火山灰飄散到平流層，遮蔽陽光，導致全球氣溫下降</p>
+      </div>
+      <div class="info-item">
+        <span class="ii-icon">🔥</span>
+        <h4>熔岩流破壞</h4>
+        <p>高溫熔岩（約 1,200°C）沿山坡流下，燒毀一切</p>
+      </div>
+      <div class="info-item">
+        <span class="ii-icon">🏝️</span>
+        <h4>形成新島嶼</h4>
+        <p>海底火山不斷噴發，熔岩堆積最終冒出海面，夏威夷即為例證</p>
+      </div>
+      <div class="info-item">
+        <span class="ii-icon">🌱</span>
+        <h4>肥沃的火山土</h4>
+        <p>火山灰富含礦物質，使周邊農地極為肥沃</p>
+      </div>
+    </div>
+    <div class="card" style="background:linear-gradient(135deg,#fff5f5,#ffe8e8);">
+      <div class="card-title" style="color:#8b0000;">🗻 著名火山案例</div>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="ii-icon">🇮🇩</span>
+          <h4>喀拉喀托火山</h4>
+          <p>1883年大爆發，爆炸聲傳至5,000公里外，引發海嘯奪走36,000命</p>
+        </div>
+        <div class="info-item">
+          <span class="ii-icon">🇮🇹</span>
+          <h4>維蘇威火山</h4>
+          <p>西元79年噴發，埋葬古羅馬城市龐貝，考古出土後震驚世界</p>
+        </div>
+        <div class="info-item">
+          <span class="ii-icon">🇹🇼</span>
+          <h4>龜山島</h4>
+          <p>台灣東北海域的活火山，海底仍有熱泉噴出，是火環帶的一部分</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mountain -->
+  <div id="eff-mtn" class="effect-content">
+    <div class="effect-hero bg-mountain">
+      <span class="eh-icon">⛰️</span>
+      <h2>造山運動的影響</h2>
+      <p>板塊碰撞在百萬年的時間尺度中緩緩推高地殼，塑造了世界的屋脊與台灣的中央山脈。</p>
+    </div>
+    <div class="info-grid" style="margin-bottom:24px">
+      <div class="info-item">
+        <span class="ii-icon">☁️</span>
+        <h4>影響氣候</h4>
+        <p>高山阻擋水氣，迎風面多雨，背風面乾燥，形成雨影效應</p>
+      </div>
+      <div class="info-item">
+        <span class="ii-icon">🏞️</span>
+        <h4>塑造地形</h4>
+        <p>峽谷、高原、盆地都與造山運動後的侵蝕與沉降有關</p>
+      </div>
+      <div class="info-item">
+        <span class="ii-icon">🌊</span>
+        <h4>改變河流</h4>
+        <p>山脈決定分水嶺位置，影響河流流向與集水區</p>
+      </div>
+      <div class="info-item">
+        <span class="ii-icon">🦁</span>
+        <h4>生物多樣性</h4>
+        <p>山地隔離效應促進物種演化，形成豐富的生態系</p>
+      </div>
+    </div>
+    <div class="card" style="background:linear-gradient(135deg,#f0fff0,#e0ffe0);">
+      <div class="card-title" style="color:#1a5a1a;">⛰️ 全球著名山脈的形成</div>
+      <div class="timeline">
+        <div class="tl-item">
+          <h4>喜馬拉雅山脈（5000萬年前～今）</h4>
+          <p>印度板塊與歐亞板塊碰撞，每年仍以約 5mm 速度上升，珠穆朗瑪峰高達 8,849 公尺。</p>
+        </div>
+        <div class="tl-item">
+          <h4>阿爾卑斯山脈（3500萬年前～今）</h4>
+          <p>非洲板塊北移壓擠歐亞板塊而形成，橫跨歐洲多國。</p>
+        </div>
+        <div class="tl-item">
+          <h4>台灣中央山脈（500萬年前～今）</h4>
+          <p>菲律賓板塊與歐亞板塊持續碰撞，形成台灣的脊梁。玉山每年仍以 0.5 公分速度隆起。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tsunami -->
+  <div id="eff-tsu" class="effect-content">
+    <div class="effect-hero bg-tsunami">
+      <span class="eh-icon">🌊</span>
+      <h2>海嘯的影響</h2>
+      <p>海底地震或火山噴發引起的巨大海浪，速度可達 800 km/h，登陸時高達數十公尺。</p>
+    </div>
+    <div class="info-grid" style="margin-bottom:24px">
+      <div class="info-item">
+        <span class="ii-icon">🏙️</span>
+        <h4>沿岸城市破壞</h4>
+        <p>巨浪夾帶碎片衝入內陸，摧毀建築、基礎設施</p>
+      </div>
+      <div class="info-item">
+        <span class="ii-icon">🌿</span>
+        <h4>海岸生態改變</h4>
+        <p>海水倒灌使土地鹽化，珊瑚礁受泥沙掩蓋死亡</p>
+      </div>
+      <div class="info-item">
+        <span class="ii-icon">💧</span>
+        <h4>淡水污染</h4>
+        <p>海水入侵地下水層，造成飲水危機</p>
+      </div>
+      <div class="info-item">
+        <span class="ii-icon">📡</span>
+        <h4>早期預警系統</h4>
+        <p>太平洋海嘯預警中心監測地震，爭取避難時間</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🌊 2004 年印度洋大海嘯</div>
+      <p style="color:#555;line-height:1.8;">
+        2004年12月26日，蘇門答臘外海發生芮氏規模 <strong>9.1</strong> 的超強地震，引發印度洋海嘯。
+        浪高在某些地方達到 <strong>30 公尺</strong>，席捲印尼、斯里蘭卡、泰國、印度等 14 國海岸，
+        造成逾 <strong>22 萬人</strong>罹難，是有記錄以來死亡人數最多的天然災害之一。
+        此後，各國加速建立海嘯預警系統，台灣也在東部沿岸設立警報站。
+      </p>
+    </div>
+  </div>
+
+  <!-- Quiz S3 -->
+  <div class="quiz-wrap reveal" style="margin-top:28px">
+    <h3>🧠 小測驗：你學會了嗎？</h3>
+    <div class="quiz-q">
+      <p>❓ 下列哪項是火山噴發帶來的「正面影響」？</p>
+      <div class="quiz-opts">
+        <button class="quiz-opt" onclick="answer(this,'wrong')">引發海嘯</button>
+        <button class="quiz-opt" onclick="answer(this,'wrong')">氣溫下降</button>
+        <button class="quiz-opt" onclick="answer(this,'correct')">形成肥沃的農地</button>
+        <button class="quiz-opt" onclick="answer(this,'wrong')">破壞建築物</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+    <div class="quiz-q">
+      <p>❓ 海嘯最常由什麼原因引起？</p>
+      <div class="quiz-opts">
+        <button class="quiz-opt" onclick="answer(this,'correct')">海底地震</button>
+        <button class="quiz-opt" onclick="answer(this,'wrong')">強風吹拂</button>
+        <button class="quiz-opt" onclick="answer(this,'wrong')">月球引力</button>
+        <button class="quiz-opt" onclick="answer(this,'wrong')">洋流變化</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+  </div>
+</section>
+
+<!-- DETAIL MODAL -->
+<div class="detail-panel" id="detailPanel" onclick="closeDetail(event)">
+  <div class="detail-box" id="detailBox">
+    <button class="close-btn" onclick="closeDetailBtn()">✕</button>
+    <h2 id="detailTitle"></h2>
+    <div id="detailBody"></div>
+  </div>
+</div>
+
+<footer>
+  <p>🌍 大地的奧秘 | 互動視覺學習儀表板 | 探索地球的無窮奧秘</p>
+  <p style="margin-top:8px;font-size:0.8rem;">地球科學 · 板塊構造 · 地質學基礎</p>
+</footer>
+
+<script>
+// Tab navigation
+function showTab(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  checkReveal();
+}
+
+// Effect tabs
+function showEffect(id, btn) {
+  document.querySelectorAll('.effect-content').forEach(e => e.classList.remove('active'));
+  document.querySelectorAll('.effect-tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('eff-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// Quiz
+function answer(btn, result) {
+  const opts = btn.closest('.quiz-opts').querySelectorAll('.quiz-opt');
+  opts.forEach(o => o.disabled = true);
+  btn.classList.add(result);
+  const fb = btn.closest('.quiz-q').querySelector('.quiz-feedback');
+  if (result === 'correct') {
+    fb.innerHTML = '✅ 答對了！非常棒！';
+    fb.style.color = '#27ae60';
+  } else {
+    opts.forEach(o => { if(o.getAttribute('onclick').includes("'correct'")) o.classList.add('correct'); });
+    fb.innerHTML = '❌ 答錯了，看看正確答案（綠色）！';
+    fb.style.color = '#e74c3c';
+  }
+}
+
+// Detail modal data
+const details = {
+  surface: {
+    title: '🌿 地表與土壤層',
+    body: `<p>土壤是由岩石風化後的碎屑、有機物、水分和空氣混合而成。厚度雖只有幾公分到一公尺，卻孕育了地球上幾乎所有的陸地生命。</p><ul><li>🌱 表土層：腐植質最多，最肥沃</li><li>🪨 底土層：礦物質多，有機物少</li><li>🪱 土壤中有無數微生物、蚯蚓幫助分解有機物</li></ul>`
+  },
+  soil: {
+    title: '🪱 沉積岩層',
+    body: `<p>沉積岩由砂、泥、礫石等物質堆積壓縮形成，通常呈現清楚的<strong>層狀結構</strong>。每一層代表一個時期的地質環境。</p><ul><li>📚 越深的地層越古老</li><li>🦕 化石主要保存在沉積岩中</li><li>⛽ 煤炭、石油也常儲存在沉積岩層中</li></ul>`
+  },
+  rock: {
+    title: '🗿 岩石層（岩圈）',
+    body: `<p>岩石圈包含地殼和上地函最頂層，由堅硬岩石組成。分為三大類岩石：</p><ul><li>🔴 火成岩：岩漿冷卻固化（如花崗岩、玄武岩）</li><li>📚 沉積岩：碎屑堆積壓縮（如砂岩、石灰岩）</li><li>💎 變質岩：高溫高壓改造（如大理岩、片麻岩）</li></ul>`
+  },
+  crust: {
+    title: '🏔️ 地殼',
+    body: `<p>地殼是地球最外層的薄殼，分為兩種：</p><ul><li>🌍 <strong>大陸地殼</strong>：厚約 30~70 公里，主要由花崗岩組成，密度較低</li><li>🌊 <strong>海洋地殼</strong>：厚約 5~10 公里，主要由玄武岩組成，密度較高</li><li>⚡ 地殼上承載著所有的山脈、海洋、城市與生命</li></ul>`
+  },
+  mantle: {
+    title: '🌊 地函（地幔）',
+    body: `<p>地函佔地球體積的 84%，是地球最大的圈層。溫度約 1,000~3,700°C。</p><ul><li>🌀 <strong>軟流圈</strong>：上地函的部分呈半固態，岩漿可以緩慢流動</li><li>🔄 地函的<strong>對流運動</strong>是驅動板塊移動的引擎</li><li>⏱️ 岩漿對流速度極慢，完整循環需要數億年</li></ul>`
+  },
+  outer: {
+    title: '🌀 外地核',
+    body: `<p>外地核由液態的鐵鎳合金組成，溫度約 4,000~5,000°C。</p><ul><li>🧲 液態金屬的流動產生<strong>地球磁場</strong></li><li>🛡️ 地球磁場是地球的「盾牌」，阻擋有害的太陽風</li><li>☁️ 沒有磁場，地球大氣層將被太陽風剝蝕，地球會變成火星！</li></ul>`
+  },
+  inner: {
+    title: '⭐ 內地核',
+    body: `<p>內地核是地球最核心的部分，由<strong>固態</strong>鐵鎳組成，半徑約 1,220 公里。</p><ul><li>🔥 溫度高達約 6,000°C，與太陽表面溫度相當</li><li>💪 雖然溫度極高，但因受到巨大壓力（360 萬大氣壓），所以保持固態</li><li>🌍 內地核以稍快於地球其他部分的速度旋轉</li></ul>`
+  },
+  fossil_dino: {
+    title: '🦖 恐龍化石',
+    body: `<p>化石是古代生物的遺骸或痕跡，保存在沉積岩中。恐龍化石幫助我們了解：</p><ul><li>⏰ 地球 6,500 萬年前的生態環境</li><li>📊 古氣候與古地理的變化</li><li>🌍 大陸漂移的證據（南美洲與非洲發現相同化石）</li></ul>`
+  },
+  fossil_shell: {
+    title: '🐚 貝殼化石的啟示',
+    body: `<p>山頂發現貝殼化石是大地變動的有力證據！</p><ul><li>🌊 說明該地在遠古時期是海底環境</li><li>⛰️ 隨著造山運動，海底地層被抬升成高山</li><li>🇳🇵 喜馬拉雅山頂也曾發現海洋化石！</li></ul>`
+  },
+  mineral: {
+    title: '💎 礦石晶體',
+    body: `<p>礦物在地殼深處高溫高壓環境中緩慢結晶形成。</p><ul><li>💎 鑽石：極深處（150km以下）高壓形成的碳晶體</li><li>💎 水晶（石英）：二氧化矽在熱液環境中結晶</li><li>🟢 翡翠：板塊隱沒帶的高壓環境中形成</li></ul>`
+  },
+  coal: {
+    title: '🪨 煤與石油',
+    body: `<p>這些化石燃料是古代生物的遺產：</p><ul><li>🌿 煤炭：3億年前的植物被地層掩埋，經長期壓縮形成</li><li>🐟 石油：遠古海洋生物（浮游生物）沉積後轉化而成</li><li>⚠️ 燃燒化石燃料釋放CO₂，加速全球暖化</li></ul>`
+  },
+  plates: {
+    title: '🗺️ 板塊運動詳解',
+    body: `<p>地球表面分為 <strong>15 個主要板塊</strong>，在地函對流的驅動下緩慢移動，有三種邊界類型：</p><ul><li>🏔️ <strong>碰撞邊界</strong>：兩板塊相撞 → 造山運動（如喜馬拉雅山）</li><li>🌋 <strong>隱沒帶</strong>：密度大的板塊潛入另一板塊下方 → 火山與地震</li><li>🌍 <strong>張裂帶</strong>：板塊分離 → 海底擴張，形成大西洋中洋脊</li></ul>`
+  },
+  volcano_how: {
+    title: '🌋 火山噴發的過程',
+    body: `<p>火山的形成需要三個條件：</p><ul><li>🔥 高溫岩漿（來自地函部分熔融）</li><li>💨 揮發性氣體（水蒸氣、CO₂、SO₂）提供噴發動力</li><li>🚪 通道：地殼裂縫或板塊邊界提供岩漿上升的路徑</li></ul><p style="margin-top:12px;">噴發物包含：熔岩流、火山灰、火山彈、火山氣體，危險程度視火山類型而定。</p>`
+  },
+  quake_how: {
+    title: '📳 地震如何發生',
+    body: `<p>地震的關鍵概念：</p><ul><li>📍 <strong>震源</strong>：地震發生在地殼內的位置</li><li>📍 <strong>震央</strong>：震源正上方的地面位置</li><li>🌊 <strong>地震波</strong>：P波（縱波）最快，S波（橫波）其次，表面波破壞力最大</li><li>📊 <strong>芮氏規模</strong>：每增加 1 級，能量增加約 32 倍</li></ul>`
+  },
+  fold_how: {
+    title: '⛰️ 褶皺與斷層',
+    body: `<p>板塊擠壓讓岩層變形，主要有兩種方式：</p><ul><li>🌊 <strong>褶皺</strong>：岩層緩慢彎曲，向上拱起稱「背斜」，向下凹稱「向斜」，形成山脈</li><li>⚡ <strong>斷層</strong>：岩層受力超過強度時突然斷裂錯動，斷層活動即引發地震</li><li>🇹🇼 台灣的車籠埔斷層是九二一地震的元凶</li></ul>`
+  }
+};
+
+function showDetail(key) {
+  const d = details[key];
+  if (!d) return;
+  document.getElementById('detailTitle').textContent = d.title;
+  document.getElementById('detailBody').innerHTML = d.body;
+  document.getElementById('detailPanel').classList.add('show');
+}
+function closeDetail(e) {
+  if (e.target.id === 'detailPanel') closeDetailBtn();
+}
+function closeDetailBtn() {
+  document.getElementById('detailPanel').classList.remove('show');
+}
+
+// Scroll reveal
+function checkReveal() {
+  document.querySelectorAll('.reveal').forEach(el => {
+    const rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight - 60) el.classList.add('visible');
+  });
+}
+window.addEventListener('scroll', checkReveal);
+window.addEventListener('load', () => {
+  checkReveal();
+  // Trigger stat bar animation
+  setTimeout(() => {
+    document.querySelectorAll('.stat-fill').forEach(b => {
+      const w = b.style.width;
+      b.style.width = '0';
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => { b.style.width = w; });
+      });
+    });
+  }, 500);
+});
+
+// Fact ticker
+const facts = [
+  '從地表到地心距離約 6,371 公里，相當於從台北到北京來回 7 趟！',
+  '地球磁場每隔數十萬年就會「翻轉」，南北極互換！',
+  '台灣每年約有 2,000 次可感地震，是全球最高之一。',
+  '喜馬拉雅山每年仍在以約 5 毫米的速度持續上升！',
+  '地球年齡約 46 億年，生命出現在約 38 億年前的海洋。',
+  '海洋地殼比大陸地殼薄，但密度更大，所以隱沒到大陸板塊下方。',
+  '內地核的溫度高達 6,000°C，幾乎和太陽表面一樣熱！',
+];
+let fi = 0;
+setInterval(() => {
+  fi = (fi + 1) % facts.length;
+  const el = document.getElementById('factText');
+  if (el) { el.style.opacity = 0; setTimeout(() => { el.textContent = facts[fi]; el.style.opacity = 1; }, 400); }
+}, 5000);
+</script>
+</body>
+</html>
